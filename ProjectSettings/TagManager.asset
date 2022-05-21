@@ -1,0 +1,68 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!78 &1
+TagManager:
+  serializedVersion: 2
+  tags:
+  - Ground
+  - Box
+  - Button
+  - Door
+  layers:
+  - Default
+  - TransparentFX
+  - Ignore Raycast
+  - WorldEventTrigger
+  - Water
+  - UI
+  - Player
+  - Box
+  - Button
+  - Door
+  - Ground
+  - Interactive
+  - Attackable
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  m_SortingLayers:
+  - name: Default
+    uniqueID: 0
+    locked: 0
+  - name: Interactive
+    uniqueID: 3078003539
+    locked: 0
+  - name: Ground
+    uniqueID: 249874329
+    locked: 0
+  - name: Door
+    uniqueID: 697971367
+    locked: 0
+  - name: Button
+    uniqueID: 1373170015
+    locked: 0
+  - name: Player
+    uniqueID: 3500822951
+    locked: 0
+  - name: Box
+    uniqueID: 156773153
+    locked: 0
+  - name: Tooltip
+    uniqueID: 2847042199
+    locked: 0
