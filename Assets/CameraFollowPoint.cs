@@ -10,12 +10,12 @@ public class CameraFollowPoint : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        player1Transform = GameObject.Find("Player").GetComponent<Transform>();
+        player1Transform = GameObject.Find("Player1").GetComponent<Transform>();
         if (player1Transform == null)
         {
             Debug.Log("Player 1 not found");
         }
-        player2Transform = GameObject.Find("AI_Player").GetComponent<Transform>();
+        player2Transform = GameObject.Find("Player2").GetComponent<Transform>();
         if (player2Transform == null)
         {
             Debug.Log("Player 2 not found");

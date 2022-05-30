@@ -8,6 +8,7 @@ TagManager:
   - Box
   - Button
   - Door
+  - Attack
   layers:
   - Default
   - TransparentFX
@@ -21,7 +22,7 @@ TagManager:
   - Door
   - Ground
   - Interactive
-  - Attackable
+  - 
   - 
   - 
   - 
@@ -57,11 +58,11 @@ TagManager:
   - name: Button
     uniqueID: 1373170015
     locked: 0
-  - name: Player
-    uniqueID: 3500822951
-    locked: 0
   - name: Box
     uniqueID: 156773153
+    locked: 0
+  - name: Player
+    uniqueID: 3500822951
     locked: 0
   - name: Tooltip
     uniqueID: 2847042199

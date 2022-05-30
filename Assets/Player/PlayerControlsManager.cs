@@ -8,12 +8,19 @@ using UnityEngine.Rendering.PostProcessing;
 
 public class PlayerControlsManager : MonoBehaviour
 {
+/* -------------------------------- CONSTANTS ------------------------------- */
+
+	private const float PICKUP_COOLDOWN = 0.5f;
+
 /* ------------------------------- ATTRIBUTES ------------------------------- */
 	private PostProcessVolume postProcessVolume;
 	private Tilemap tilemap;
 	private TextMesh toolTip;
+	private GameObject attachedBox;
+	private GameObject boxPrefab;
 	private bool interacting = false;
 	private float toolTipTimer = -2000f;
+	private float pickupCooldown = 0f;
 /* ------------------------------ INPUT METHODS ----------------------------- */
 
     public void OnInteract(InputAction.CallbackContext context) {
@@ -24,10 +31,12 @@ public class PlayerControlsManager : MonoBehaviour
 /* ------------------------------ UNITY METHODS ----------------------------- */
 	void Awake()
 	{
+		boxPrefab = Resources.Load<GameObject>("Puzzles/Box");
 		postProcessVolume = GameObject.Find("MainCamera").GetComponent<PostProcessVolume>();
 		tilemap = GameObject.Find("Tilemap").GetComponent<Tilemap>();
-		toolTip = GameObject.Find("Tooltip").GetComponent<TextMesh>();
-		toolTip.GetComponent<Renderer>().sortingLayerName = "Tooltip";
+		toolTip = findTooltipInChildren();
+		attachedBox = findAttachedBoxInChildren();
+		attachedBox.SetActive(false);
 	}
 
 	void FixedUpdate() {
@@ -38,9 +47,39 @@ public class PlayerControlsManager : MonoBehaviour
 			clearTooltipText();
 			toolTipTimer = -2000f;
 		}
+
+		if (pickupCooldown > 0) {
+			pickupCooldown -= Time.deltaTime;
+		}
+		else if (hasBox() && isInteracting()) {
+			// Spawn Box
+			Instantiate(boxPrefab, attachedBox.transform.position, Quaternion.identity);
+			attachedBox.SetActive(false);
+		}
 	}
 
 /* ----------------------------- NORMAL METHODS ----------------------------- */
+
+	private TextMesh findTooltipInChildren() {
+		Transform[] transforms = GetComponentsInChildren<Transform>();
+		foreach (Transform t in transforms) {
+			if (t.tag == "Tooltip") {
+				return t.GetComponent<TextMesh>();
+			}
+		}
+		return null;
+	}
+
+	private GameObject findAttachedBoxInChildren() {
+		Transform[] transforms = GetComponentsInChildren<Transform>();
+		foreach (Transform t in transforms) {
+			if (t.tag == "Box") {
+				return t.gameObject;
+			}
+		}
+		return null;
+	}
+
 	public bool isInteracting() {
 		return interacting;
 	}
@@ -56,5 +95,14 @@ public class PlayerControlsManager : MonoBehaviour
 
 	public void clearTooltipText() {
 		toolTip.text = "";
+	}
+
+	public void pickBox() {
+		attachedBox.SetActive(true);
+		pickupCooldown = PICKUP_COOLDOWN;
+	}
+
+	public bool hasBox() {
+		return attachedBox.activeSelf;
 	}
 }
