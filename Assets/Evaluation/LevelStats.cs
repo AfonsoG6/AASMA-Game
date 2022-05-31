@@ -12,8 +12,8 @@ public class LevelStats {
 	public List<Attempt> attemptHistory;
 
 	public LevelStats() {
-		fastestAttempt = new Attempt();
-		simplestAttempt = new Attempt();
+		fastestAttempt = new Attempt(double.MaxValue, new int[2]{int.MaxValue, int.MaxValue});
+		simplestAttempt = new Attempt(double.MaxValue, new int[2]{int.MaxValue, int.MaxValue});
 		attemptHistory = new List<Attempt>();
 	}
 

@@ -13,8 +13,8 @@ public class GlobalStats {
 	private List<Attempt> fullAttemptHistory;
 
 	public GlobalStats() {
-		fastestFullAttempt = new Attempt();
-		simplestFullAttempt = new Attempt();
+		fastestFullAttempt = new Attempt(double.MaxValue, new int[2]{int.MaxValue, int.MaxValue});
+		simplestFullAttempt = new Attempt(double.MaxValue, new int[2]{int.MaxValue, int.MaxValue});
 		levels = new Dictionary<string, LevelStats>();
 		fullAttemptHistory = new List<Attempt>();
 	}
