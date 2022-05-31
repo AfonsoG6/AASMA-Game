@@ -10,6 +10,7 @@ TagManager:
   - Door
   - Attack
   - Tooltip
+  - Flag
   layers:
   - Default
   - TransparentFX
@@ -23,7 +24,7 @@ TagManager:
   - Door
   - Ground
   - Interactive
-  - 
+  - Flag
   - 
   - 
   - 
