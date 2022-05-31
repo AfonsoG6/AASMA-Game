@@ -19,11 +19,27 @@ public class PlayerControlsManager : MonoBehaviour
 	private GameObject attachedBox;
 	private GameObject boxPrefab;
 	private bool interacting = false;
+	private float moving = 0f;
+	private bool jumping = false;
 	private float toolTipTimer = -2000f;
 	private float pickupCooldown = 0f;
+	private bool controlsDisabled = false;
+
 /* ------------------------------ INPUT METHODS ----------------------------- */
 
+	public void OnMovement(InputAction.CallbackContext context) {
+		if (controlsDisabled) return;
+		moving = context.ReadValue<float>();
+	}
+
+	public void OnJump(InputAction.CallbackContext context) {
+		if (controlsDisabled) return;
+		if (context.ReadValue<float>() > 0) jumping = true;
+		else jumping = false;
+	}
+
     public void OnInteract(InputAction.CallbackContext context) {
+		if (controlsDisabled) return;
 		if (context.ReadValue<float>() > 0) interacting = true;
 		else interacting = false;
 	}
@@ -80,10 +96,6 @@ public class PlayerControlsManager : MonoBehaviour
 		return null;
 	}
 
-	public bool isInteracting() {
-		return interacting;
-	}
-
 	public void setTooltipText(string text) {
 		toolTip.text = text;
 	}
@@ -105,4 +117,33 @@ public class PlayerControlsManager : MonoBehaviour
 	public bool hasBox() {
 		return attachedBox.activeSelf;
 	}
+
+	public bool isJumping() {
+		return jumping;
+	}
+
+	public void setJumping(bool jumping) {
+		this.jumping = jumping;
+	}
+
+	public float getMoving() {
+		return moving;
+	}
+
+	public void setMoving(float moving) {
+		this.moving = moving;
+	}
+
+	public bool isInteracting() {
+		return interacting;
+	}
+
+	public void setInteracting(bool interacting) {
+		this.interacting = interacting;
+	}
+
+	public void toggleControls() {
+		controlsDisabled = !controlsDisabled;
+	}
+
 }

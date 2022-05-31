@@ -12,55 +12,39 @@ public class PlayerMovement : MonoBehaviour
 	private const float FALL_GRAVITY = 3f;
 	[SerializeField] private Transform[] GROUND_CHECKS;
 	private const float GROUNDED_RADIUS = .1f; // Radius of the overlap circle to determine if grounded
-	private const float JUMP_FORCE = 350f;	// Good Value: 550
-	private const float IN_AIR_JUMP_FORCE = 35f;
-	private const float IN_AIR_JUMP_REDUC_MULT = 0.75f;	// Multiplier to apply to jump force each 1/4 second (smoothly)
+	private const float JUMP_FORCE = 425f;
 /* ------------------------------- ATTRIBUTES ------------------------------- */
 	private Rigidbody2D rb2D;
 	private SpriteRenderer spriteRend;
 	private Animator animator;
-	private float moving = 0f;
 	private float timeStill = 0f;
-	private bool jumping = false;
 	private bool grounded;
 	private Vector3 velocity = Vector3.zero;
-	private bool continuesJumping = false;
 	private bool isFrozen = false;
 	private Vector3 prevVelocity;
-	private float currJumpForce;
+	private PlayerControlsManager playerControls;
 /* ------------------------------ UNITY METHODS ----------------------------- */
 	void Awake() {
 		rb2D = GetComponent<Rigidbody2D>();
 		spriteRend = GetComponent<SpriteRenderer>();
 		animator = GetComponent<Animator>();
+		playerControls = GetComponent<PlayerControlsManager>();
 	}
 
 	void FixedUpdate() {
 		grounded = checkIsGrounded();
 
-		updateMovement(moving * Time.fixedDeltaTime, jumping);
+		updateMovement(playerControls.getMoving() * Time.fixedDeltaTime, playerControls.isJumping());
 		updateAnimations();
-	}
-/* ------------------------------ INPUT METHODS ----------------------------- */
-	public void OnMovement(InputAction.CallbackContext context) {
-		moving = context.ReadValue<float>();
-	}
-	public void OnJump(InputAction.CallbackContext context) {
-		if (context.ReadValue<float>() > 0) jumping = true;
-		else jumping = false;
 	}
 /* ----------------------------- NORMAL METHODS ----------------------------- */
 
 	private bool isMoving() {
-		return moving != 0;
+		return playerControls.getMoving() != 0;
 	}
 
 	private bool isGrounded() {
 		return grounded && (-0.01f <= rb2D.velocity.y && rb2D.velocity.y <= 0.01f);
-	}
-
-	public bool isJumping() {
-		return continuesJumping;
 	}
 
 	private void updateAnimations() {
@@ -69,7 +53,7 @@ public class PlayerMovement : MonoBehaviour
 		// Update Animator for Jumping animation
 		animator.SetFloat("VelocityY", rb2D.velocity.y);
 		// Update Animator for Idle animation
-		if (isMoving() || jumping) timeStill = 0;
+		if (isMoving() || playerControls.isJumping()) timeStill = 0;
 		else if (timeStill < 1000) {	// To prevent overflow
 			timeStill = (timeStill + Time.deltaTime);
 		}
@@ -104,7 +88,6 @@ public class PlayerMovement : MonoBehaviour
 	public void knock(Vector2 knockback) {
 		rb2D.velocity = new Vector2(rb2D.velocity.x, 0);
 		rb2D.AddForce(knockback);
-		continuesJumping = false;
 	}
 
 	private void updateOrientation(float movingSide) {
@@ -115,19 +98,10 @@ public class PlayerMovement : MonoBehaviour
 	}
 
 	private void updateJump(bool jump) {
-		continuesJumping = continuesJumping && jump;
-		if (jump) {
-			if (isGrounded()) {
-				// Make the character jump
-				grounded = false;
-				continuesJumping = true;
-				rb2D.AddForce(new Vector2(0f, JUMP_FORCE));
-				currJumpForce = IN_AIR_JUMP_FORCE;
-			}
-			else if (continuesJumping && currJumpForce > 0 && rb2D.velocity.y > 0) {
-				currJumpForce = currJumpForce*(1 - 4*IN_AIR_JUMP_REDUC_MULT*Time.fixedDeltaTime);
-				rb2D.AddForce(new Vector2(0f, currJumpForce));
-			}
+		if (jump && isGrounded()) {
+			// Make the character jump
+			grounded = false;
+			rb2D.AddForce(new Vector2(0f, JUMP_FORCE));
 		}
 	}
 
@@ -144,4 +118,7 @@ public class PlayerMovement : MonoBehaviour
 		transform.position = position;
 		GameObject.Find("CursedMask").transform.position = position;
 	}
+
+
+// --------------------------------- ACTIONS --------------------------------- //
 }
