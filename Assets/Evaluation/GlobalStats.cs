@@ -7,25 +7,33 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class GlobalStats {
-	private Attempt fastestFullAttempt;
-	private Attempt simplestFullAttempt;
-	private Dictionary<string, LevelStats> levels;
-	private List<Attempt> fullAttemptHistory;
+	public Attempt fastestFullAttempt;
+	public Attempt simplestFullAttempt;
+	public Dictionary<string, LevelStats> levels;
+	public List<Attempt> fullAttemptHistory;
 
 	public GlobalStats() {
-		fastestFullAttempt = new Attempt(double.MaxValue, new int[2]{int.MaxValue, int.MaxValue});
-		simplestFullAttempt = new Attempt(double.MaxValue, new int[2]{int.MaxValue, int.MaxValue});
+		fastestFullAttempt = new Attempt(-1, new int[2]{-1, -1});
+		simplestFullAttempt = new Attempt(-1, new int[2]{-1, -1});
 		levels = new Dictionary<string, LevelStats>();
 		fullAttemptHistory = new List<Attempt>();
 	}
 
 	public void AddFullAttempt(Attempt attempt) {
-		if (attempt.time < fastestFullAttempt.time) {
+		if (fastestFullAttempt.time == -1 || fastestFullAttempt.actions[0] == -1 || fastestFullAttempt.actions[1] == -1) {
 			fastestFullAttempt = attempt;
 		}
-		if (attempt.time > simplestFullAttempt.time) {
+		else if (attempt.time < fastestFullAttempt.time) {
+			fastestFullAttempt = attempt;
+		}
+
+		if (simplestFullAttempt.time == -1 || simplestFullAttempt.actions[0] == -1 || simplestFullAttempt.actions[1] == -1) {
 			simplestFullAttempt = attempt;
 		}
+		else if (attempt.actions[0] + attempt.actions[1] < simplestFullAttempt.actions[0] + simplestFullAttempt.actions[1]) {
+			simplestFullAttempt = attempt;
+		}
+
 		fullAttemptHistory.Add(attempt);
 	}
 
@@ -35,5 +43,9 @@ public class GlobalStats {
 		}
 		LevelStats levelStats = levels[levelName];
 		levelStats.addAttempt(attempt);
+	}
+
+	public string toJson() {
+		return JsonConvert.SerializeObject(this);
 	}
 }

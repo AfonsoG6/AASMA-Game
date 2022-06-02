@@ -142,7 +142,11 @@ public class PlayerControlsManager : MonoBehaviour
 		this.interacting = interacting;
 	}
 
-	public void toggleControls() {
+	public void setControlsEnabled(bool enabled) {
+		controlsDisabled = enabled;
+	}
+
+	public void toggleControlsEnabled() {
 		controlsDisabled = !controlsDisabled;
 	}
 

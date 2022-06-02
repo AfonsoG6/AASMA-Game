@@ -3,7 +3,7 @@ using System.IO;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class Evaluator : MonoBehaviour
+public class Flag : MonoBehaviour
 {
     private int playersInRange = 0;
 
@@ -11,7 +11,7 @@ public class Evaluator : MonoBehaviour
         return playersInRange == 2;
     }
 
-    private void OnTriggerEnter2D(Collider2D other)
+    void OnTriggerEnter2D(Collider2D other)
     {
         if (other.CompareTag("Player"))
         {
@@ -23,7 +23,7 @@ public class Evaluator : MonoBehaviour
         }
     }
 
-    private void OnTriggerExit2D(Collider2D other)
+    void OnTriggerExit2D(Collider2D other)
     {
         if (other.CompareTag("Player"))
         {

@@ -12,18 +12,26 @@ public class LevelStats {
 	public List<Attempt> attemptHistory;
 
 	public LevelStats() {
-		fastestAttempt = new Attempt(double.MaxValue, new int[2]{int.MaxValue, int.MaxValue});
-		simplestAttempt = new Attempt(double.MaxValue, new int[2]{int.MaxValue, int.MaxValue});
+		fastestAttempt = new Attempt(-1, new int[2]{-1, -1});
+		simplestAttempt = new Attempt(-1, new int[2]{-1, -1});
 		attemptHistory = new List<Attempt>();
 	}
 
 	public void addAttempt(Attempt attempt) {
-		if (attempt.time < fastestAttempt.time) {
+		if (fastestAttempt.time == -1 || fastestAttempt.actions[0] == -1 || fastestAttempt.actions[1] == -1) {
 			fastestAttempt = attempt;
 		}
-		if (attempt.time > simplestAttempt.time) {
+		else if (attempt.time < fastestAttempt.time) {
+			fastestAttempt = attempt;
+		}
+
+		if (simplestAttempt.time == -1 || simplestAttempt.actions[0] == -1 || simplestAttempt.actions[1] == -1) {
 			simplestAttempt = attempt;
 		}
+		else if (attempt.actions[0] + attempt.actions[1] < simplestAttempt.actions[0] + simplestAttempt.actions[1]) {
+			simplestAttempt = attempt;
+		}
+
 		attemptHistory.Add(attempt);
 	}
 }
