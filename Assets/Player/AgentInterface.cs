@@ -8,6 +8,7 @@ public class AgentInterface : MonoBehaviour
     private const float JUMP_TIME = 0.1f;
     private LevelManager levelManager;
     private PlayerControlsManager playerControls;
+    private bool acting = false;
 
     void Awake()
     {
@@ -22,75 +23,88 @@ public class AgentInterface : MonoBehaviour
             playerControls.toggleControlsEnabled();
         }
         else if (Input.GetKeyDown(KeyCode.I)) {
-            act(Action.JUMP_LEFT);
+            act(AgentAction.JUMP_LEFT);
         }
         else if (Input.GetKeyDown(KeyCode.O)) {
-            act(Action.JUMP_RIGHT);
+            act(AgentAction.JUMP_RIGHT);
         }
         else if (Input.GetKeyDown(KeyCode.K)) {
-            act(Action.WALK_LEFT);
+            act(AgentAction.WALK_LEFT);
         }
         else if (Input.GetKeyDown(KeyCode.L)) {
-            act(Action.WALK_RIGHT);
+            act(AgentAction.WALK_RIGHT);
         }
         else if (Input.GetKeyDown(KeyCode.P)) {
-            act(Action.GRAB_OR_DROP);
+            act(AgentAction.GRAB_OR_DROP);
         }
+    }
 
+    public bool isActing() {
+        return acting;
     }
 
     public IEnumerator jumpRight() {
+        acting = true;
 		playerControls.setJumping(true);
 		yield return new WaitForSeconds(JUMP_TIME);
 		playerControls.setJumping(false);
 		playerControls.setMoving(1);
 		yield return new WaitForSeconds(MOVE_UNIT_TIME);
 		playerControls.setMoving(0);
-	}
+        acting = false;
+    }
 
 	public IEnumerator jumpLeft() {
+        acting = true;
 		playerControls.setJumping(true);
 		yield return new WaitForSeconds(JUMP_TIME);
 		playerControls.setJumping(false);
 		playerControls.setMoving(-1);
 		yield return new WaitForSeconds(MOVE_UNIT_TIME);
 		playerControls.setMoving(0);
+        acting = false;
 	}
 
 	public IEnumerator walkRight() {
+        acting = true;
 		playerControls.setMoving(1);
 		yield return new WaitForSeconds(MOVE_UNIT_TIME);
 		playerControls.setMoving(0);
+        acting = false;
 	}
 
 	public IEnumerator walkLeft() {
+        acting = true;
 		playerControls.setMoving(-1);
 		yield return new WaitForSeconds(MOVE_UNIT_TIME);
 		playerControls.setMoving(0);
+        acting = false;
 	}
 
     public IEnumerator grabOrDrop() {
+        acting = true;
         playerControls.setInteracting(true);
         yield return new WaitForSeconds(0.1f);
         playerControls.setInteracting(false);
+        acting = false;
     }
 
-    public void act(Action action) {
+    public void act(AgentAction action) {
         levelManager.incrActions(this.gameObject.name);
         switch (action) {
-            case Action.JUMP_RIGHT:
+            case AgentAction.JUMP_RIGHT:
                 StartCoroutine(jumpRight());
                 break;
-            case Action.JUMP_LEFT:
+            case AgentAction.JUMP_LEFT:
                 StartCoroutine(jumpLeft());
                 break;
-            case Action.WALK_RIGHT:
+            case AgentAction.WALK_RIGHT:
                 StartCoroutine(walkRight());
                 break;
-            case Action.WALK_LEFT:
+            case AgentAction.WALK_LEFT:
                 StartCoroutine(walkLeft());
                 break;
-            case Action.GRAB_OR_DROP:
+            case AgentAction.GRAB_OR_DROP:
                 StartCoroutine(grabOrDrop());
                 break;
             default:
@@ -98,7 +112,45 @@ public class AgentInterface : MonoBehaviour
         }
     }
 
-    public enum Action {
+    public Vector2 whereAmI() {
+        return transform.position;
+    }
+
+    public Vector2 whereIsFlag() {
+        return GameObject.Find("Flag").transform.position;
+    }
+
+    public string[] whatIsAt(Direction direction) {
+        Vector3 dirVector;
+        switch (direction) {
+            case Direction.LEFT:
+                dirVector = Vector3.left;
+                break;
+            case Direction.RIGHT:
+                dirVector = Vector3.right;
+                break;
+            case Direction.UP:
+                dirVector = Vector3.up;
+                break;
+            default:
+                dirVector = Vector3.down;
+                break;
+        }
+        RaycastHit2D[] hits = Physics2D.RaycastAll(transform.position, dirVector, 0.5f);
+        string[] tags = new string[hits.Length];
+        for (int i = 0; i < hits.Length; i++) {
+            tags[i] = hits[i].collider.tag;
+        }
+        return tags;
+    }
+
+    public enum Direction {
+        LEFT,
+        RIGHT,
+        UP
+    }
+
+    public enum AgentAction {
 		JUMP_RIGHT,
 		JUMP_LEFT,
 		WALK_RIGHT,
