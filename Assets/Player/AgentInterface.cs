@@ -44,39 +44,57 @@ public class AgentInterface : MonoBehaviour
     }
 
     public IEnumerator jumpRight() {
+        Vector2 targetPos = new Vector2(Mathf.Floor(transform.position.x + 1) + 0.5f, transform.position.y + 1);
+
         acting = true;
 		playerControls.setJumping(true);
-		yield return new WaitForSeconds(JUMP_TIME);
+		while (transform.position.y < targetPos.y) {
+            yield return new WaitForFixedUpdate();
+        }
 		playerControls.setJumping(false);
 		playerControls.setMoving(1);
-		yield return new WaitForSeconds(MOVE_UNIT_TIME);
+		while (transform.position.x > targetPos.x) {
+            yield return new WaitForFixedUpdate();
+        }
 		playerControls.setMoving(0);
         acting = false;
     }
 
 	public IEnumerator jumpLeft() {
+        Vector2 targetPos = new Vector2(Mathf.Floor(transform.position.x - 1) + 0.5f, transform.position.y + 1);
+
         acting = true;
 		playerControls.setJumping(true);
-		yield return new WaitForSeconds(JUMP_TIME);
+		while (transform.position.y < targetPos.y) {
+            yield return new WaitForFixedUpdate();
+        }
 		playerControls.setJumping(false);
 		playerControls.setMoving(-1);
-		yield return new WaitForSeconds(MOVE_UNIT_TIME);
+		while (transform.position.x < targetPos.x) {
+            yield return new WaitForFixedUpdate();
+        }
 		playerControls.setMoving(0);
         acting = false;
 	}
 
 	public IEnumerator walkRight() {
+        Vector2 targetPos = new Vector2(Mathf.Floor(transform.position.x + 1) + 0.5f, transform.position.y);
         acting = true;
 		playerControls.setMoving(1);
-		yield return new WaitForSeconds(MOVE_UNIT_TIME);
+        while (transform.position.x < targetPos.x) {
+            yield return new WaitForFixedUpdate();
+        }
 		playerControls.setMoving(0);
         acting = false;
 	}
 
 	public IEnumerator walkLeft() {
+        Vector2 targetPos = new Vector2(Mathf.Floor(transform.position.x - 1) + 0.5f, transform.position.y);
         acting = true;
 		playerControls.setMoving(-1);
-		yield return new WaitForSeconds(MOVE_UNIT_TIME);
+		while (transform.position.x > targetPos.x) {
+            yield return new WaitForFixedUpdate();
+        }
 		playerControls.setMoving(0);
         acting = false;
 	}
