@@ -16,7 +16,7 @@ public class Button : MonoBehaviour
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
         spriteRenderer.sprite = SPRITE_BASE;
-        DOOR_TO_OPEN.setButton(this);
+        DOOR_TO_OPEN.addButton(this);
         GameObject LinePrefab = Resources.Load<GameObject>("Puzzles/LineRenderer");
         LineRenderer line = Instantiate(LinePrefab, transform.position, Quaternion.identity).GetComponent<LineRenderer>();
         line.SetPosition(0, transform.position);

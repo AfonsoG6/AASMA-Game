@@ -7,10 +7,14 @@ using static AgentInterface;
 public class Agent : MonoBehaviour {
 
 	private AgentInterface i;
+	private Agent partner;
 
-	void Start()
+	void Awake()
     {
         i = GetComponent<AgentInterface>();
+		GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
+		if (players[0] != this.gameObject) partner = players[0].GetComponent<Agent>();
+		else partner = players[1].GetComponent<Agent>();
     }
 
 	void FixedUpdate()
