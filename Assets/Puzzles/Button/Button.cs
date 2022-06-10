@@ -12,10 +12,18 @@ public class Button : MonoBehaviour
 
     private int pressing = 0;
 
-    void Start()
+    void Awake()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
         spriteRenderer.sprite = SPRITE_BASE;
+        DOOR_TO_OPEN.setButton(this);
+        GameObject LinePrefab = Resources.Load<GameObject>("Puzzles/LineRenderer");
+        LineRenderer line = Instantiate(LinePrefab, transform.position, Quaternion.identity).GetComponent<LineRenderer>();
+        line.SetPosition(0, transform.position);
+        line.SetPosition(1, DOOR_TO_OPEN.transform.position);
+        Color randomColor = new Color(Random.Range(0f, 1f), Random.Range(0f, 1f), Random.Range(0f, 1f));
+        line.startColor = randomColor;
+        line.endColor = randomColor;
     }
 
     // Update is called once per frame
@@ -43,5 +51,10 @@ public class Button : MonoBehaviour
             DOOR_TO_OPEN.removeObjectOpening(gameObject);
             pressing--;
         }
+    }
+
+    public Door getDoor()
+    {
+        return DOOR_TO_OPEN;
     }
 }

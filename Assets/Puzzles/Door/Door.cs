@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class Door : MonoBehaviour
 {
+    Button button = null;
     Animator animator = null;
     Collider2D hitbox = null;
     List<GameObject> objectsOpening = new List<GameObject>();
@@ -38,5 +39,13 @@ public class Door : MonoBehaviour
     public void removeObjectOpening(GameObject obj)
     {
         objectsOpening.Remove(obj);
+    }
+
+    public Button getButton() {
+        return button;
+    }
+
+    public void setButton(Button b) {
+        button = b;
     }
 }
