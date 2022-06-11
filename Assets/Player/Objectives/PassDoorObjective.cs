@@ -16,10 +16,6 @@ public class PassDoorObjective : Objective {
 		}
 	}
 
-	public override bool isRetryable() {
-		return false;
-	}
-
 	public override bool isExclusive() {
 		// If 
 		return true;
@@ -42,4 +38,11 @@ public class PassDoorObjective : Objective {
 		else return AgentAction.STAY;
 	}
 
+	public override Objective updateObjective() {
+		Agent partner = base.agentInterface.getPartner();
+		if (partner.getCurrentObjective() is PassDoorObjective && this.isOlderThan(partner.getCurrentObjective())) {
+			return new PressButtonObjective(base.agentInterface, (PassDoorObjective)partner.getCurrentObjective());
+		}
+		return null;
+	}
 }

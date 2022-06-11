@@ -6,18 +6,15 @@ using static AgentInterface;
 
 public class PressButtonObjective : Objective {
 	public PassDoorObjective supportedObjective;
-	public List<Button> buttonsLeft;
+	public List<Button> allButtons;
+	public int buttonIdx;
 	
 	public PressButtonObjective(AgentInterface agent, PassDoorObjective supportedObjective) :
 				base(agent, supportedObjective.target.GetComponent<Door>().getButtons()[0].gameObject) {
 		this.supportedObjective = supportedObjective;
-		this.buttonsLeft = new List<Button>();
-		buttonsLeft.AddRange(supportedObjective.target.GetComponent<Door>().getButtons());
-		buttonsLeft.RemoveAt(0);
-	}
-
-	public override bool isRetryable() {
-		return buttonsLeft.Count > 0;
+		this.allButtons = new List<Button>();
+		allButtons.AddRange(supportedObjective.target.GetComponent<Door>().getButtons());
+		this.buttonIdx = 0;
 	}
 
 	public override bool isExclusive() {
@@ -35,5 +32,28 @@ public class PressButtonObjective : Objective {
 			return AgentAction.STAY;
 		}
 		else return agentInterface.getActionWalkTowards(target.transform.position);
+	}
+
+	public override Objective updateObjective() {
+		if (agentInterface.wasActionSuccessful()) return null;
+
+		if (buttonIdx+1 < allButtons.Count) {
+			buttonIdx++;
+			target = allButtons[buttonIdx].gameObject;
+			return null;
+		}
+
+		if (agentInterface.getLastAction() == AgentAction.WALK_RIGHT && agentInterface.isDoorAt(Vector2.right)) {
+			PassDoorObjective objective = new PassDoorObjective(agentInterface, agentInterface.getDoorAt(Vector2.right), agentInterface.getPosition());
+			if (!objective.equalsTo(agentInterface.getPartner().getCurrentObjective())) return objective;
+		}
+		if (agentInterface.getLastAction() == AgentAction.WALK_LEFT && agentInterface.isDoorAt(Vector2.left)) {
+			PassDoorObjective objective = new PassDoorObjective(agentInterface, agentInterface.getDoorAt(Vector2.left), agentInterface.getPosition());
+			if (!objective.equalsTo(agentInterface.getPartner().getCurrentObjective())) return objective;
+		}
+
+
+
+		return null;
 	}
 }

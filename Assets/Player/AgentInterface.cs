@@ -10,6 +10,7 @@ public class AgentInterface : MonoBehaviour
     private const float TIMEOUT = 0.5f;
     private LevelManager levelManager;
     private PlayerControlsManager playerControls;
+    private Agent partner;
     private GameObject attachedBox;
     private bool acting = false;
     private AgentAction lastAction = AgentAction.STAY;
@@ -19,12 +20,19 @@ public class AgentInterface : MonoBehaviour
     {
         playerControls = GetComponent<PlayerControlsManager>();
         levelManager = GameObject.Find("LevelManager").GetComponent<LevelManager>();
+        GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
+		if (players[0] != this.gameObject) partner = players[0].GetComponent<Agent>();
+		else partner = players[1].GetComponent<Agent>();
         Transform[] children = GetComponentsInChildren<Transform>();
         foreach (Transform child in children) {
             if (child.gameObject.name == "AttachedBox") {
                 attachedBox = child.gameObject;
             }
         }
+    }
+
+    public Agent getPartner() {
+        return partner;
     }
 
     public bool isActing() {
@@ -52,7 +60,7 @@ public class AgentInterface : MonoBehaviour
                 playerControls.setJumping(false);
                 acting = false;
                 actionSuccessful = false;
-                yield return null;
+                yield break;
             }
         }
 		playerControls.setJumping(false);
@@ -64,12 +72,12 @@ public class AgentInterface : MonoBehaviour
                 playerControls.setMoving(0);
                 acting = false;
                 actionSuccessful = false;
-                yield return null;
+                yield break;
             }
         }
 		playerControls.setMoving(0);
-        acting = false;
         actionSuccessful = true;
+        acting = false;
     }
 
 	public IEnumerator jumpLeft() {
@@ -85,7 +93,7 @@ public class AgentInterface : MonoBehaviour
                 playerControls.setJumping(false);
                 acting = false;
                 actionSuccessful = false;
-                yield return null;
+                yield break;
             }
         }
 		playerControls.setJumping(false);
@@ -97,12 +105,12 @@ public class AgentInterface : MonoBehaviour
                 playerControls.setMoving(0);
                 acting = false;
                 actionSuccessful = false;
-                yield return null;
+                yield break;
             }
         }
 		playerControls.setMoving(0);
-        acting = false;
         actionSuccessful = true;
+        acting = false;
 	}
 
 	public IEnumerator walkRight() {
@@ -118,12 +126,12 @@ public class AgentInterface : MonoBehaviour
                 playerControls.setMoving(0);
                 acting = false;
                 actionSuccessful = false;
-                yield return null;
+                yield break;
             }
         }
 		playerControls.setMoving(0);
-        acting = false;
         actionSuccessful = true;
+        acting = false;
 	}
 
 	public IEnumerator walkLeft() {
@@ -136,15 +144,16 @@ public class AgentInterface : MonoBehaviour
             yield return new WaitForFixedUpdate();
             timer += Time.fixedDeltaTime;
             if (timer > TIMEOUT) {
+                Debug.Log("Timeout on walkLeft");
                 playerControls.setMoving(0);
                 acting = false;
                 actionSuccessful = false;
-                yield return null;
+                yield break;
             }
         }
 		playerControls.setMoving(0);
-        acting = false;
         actionSuccessful = true;
+        acting = false;
 	}
 
     public IEnumerator grabOrDrop() {
@@ -154,14 +163,15 @@ public class AgentInterface : MonoBehaviour
         playerControls.setInteracting(true);
         yield return new WaitForSeconds(0.1f);
         playerControls.setInteracting(false);
-        acting = false;
-
         actionSuccessful = attachedBox.activeSelf != startingState;
+        acting = false;
     }
 
     public void act(AgentAction action) {
         levelManager.incrActions(this.gameObject.name);
         lastAction = action;
+        actionSuccessful = true;
+        //Debug.Log("Agent " + this.gameObject.name + " is acting: " + action);
         switch (action) {
             case AgentAction.JUMP_RIGHT:
                 StartCoroutine(jumpRight());

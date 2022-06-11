@@ -9,10 +9,6 @@ public class ReachFlagObjective : Objective {
 	public ReachFlagObjective(AgentInterface agentInterface) : base(agentInterface, GameObject.Find("Flag")) {
 	}
 
-	public override bool isRetryable() {
-		return true;
-	}
-
 	public override bool isExclusive() {
 		return false;
 	}
@@ -28,5 +24,22 @@ public class ReachFlagObjective : Objective {
 			return AgentAction.STAY;
 		}
 		else return agentInterface.getActionWalkTowards(target.transform.position);
+	}
+
+	public override Objective updateObjective() {
+		Agent partner = agentInterface.getPartner();
+		if (partner.getCurrentObjective() is PassDoorObjective) {
+			return new PressButtonObjective(agentInterface, (PassDoorObjective)partner.getCurrentObjective());
+		}
+		else if (!agentInterface.wasActionSuccessful()) {
+			if (agentInterface.getLastAction() == AgentAction.WALK_RIGHT && agentInterface.isDoorAt(Vector2.right)) {
+				return new PassDoorObjective(agentInterface, agentInterface.getDoorAt(Vector2.right), agentInterface.getPosition());
+			}
+			else if (agentInterface.getLastAction() == AgentAction.WALK_LEFT && agentInterface.isDoorAt(Vector2.left)) {
+				return new PassDoorObjective(agentInterface, agentInterface.getDoorAt(Vector2.left), agentInterface.getPosition());
+			}
+		}
+		
+		return null;
 	}
 }
