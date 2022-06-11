@@ -11,6 +11,7 @@ TagManager:
   - Attack
   - Tooltip
   - Flag
+  - OrderingInterface
   layers:
   - Default
   - TransparentFX

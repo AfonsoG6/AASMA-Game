@@ -154,7 +154,7 @@ public class AgentInterface : MonoBehaviour
                 dirVector = Vector3.down;
                 break;
         }
-        RaycastHit2D[] hits = Physics2D.RaycastAll(transform.position, dirVector, 0.5f);
+        RaycastHit2D[] hits = Physics2D.RaycastAll(transform.position, dirVector, 1f);
         string[] tags = new string[hits.Length];
         for (int i = 0; i < hits.Length; i++) {
             tags[i] = hits[i].collider.tag;

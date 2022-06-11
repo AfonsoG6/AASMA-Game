@@ -57,4 +57,8 @@ public class Button : MonoBehaviour
     {
         return DOOR_TO_OPEN;
     }
+
+    public bool pressed() {
+        return pressing > 0;
+    }
 }
