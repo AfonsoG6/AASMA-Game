@@ -31,6 +31,10 @@ public class Door : MonoBehaviour
         }
     }
 
+    public bool isOpen() {
+        return objectsOpening.Count > 0;
+    }
+
     public void addObjectOpening(GameObject obj)
     {
         objectsOpening.Add(obj);
