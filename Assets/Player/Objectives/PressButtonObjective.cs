@@ -37,12 +37,15 @@ public class PressButtonObjective : Objective {
 	public override Objective updateObjective() {
 		if (agentInterface.wasActionSuccessful()) return null;
 
+		// If the last action failed, we try another button if it exists.
 		if (buttonIdx+1 < allButtons.Count) {
 			buttonIdx++;
 			target = allButtons[buttonIdx].gameObject;
 			return null;
 		}
 
+		// If the last action failed, there are no more buttons, and the action failed because a door is locked,
+		// our new objective is to pass through the door.
 		if (agentInterface.getLastAction() == AgentAction.WALK_RIGHT && agentInterface.isDoorAt(Vector2.right)) {
 			PassDoorObjective objective = new PassDoorObjective(agentInterface, agentInterface.getDoorAt(Vector2.right), agentInterface.getPosition());
 			if (!objective.equalsTo(agentInterface.getPartner().getCurrentObjective())) return objective;
@@ -51,8 +54,6 @@ public class PressButtonObjective : Objective {
 			PassDoorObjective objective = new PassDoorObjective(agentInterface, agentInterface.getDoorAt(Vector2.left), agentInterface.getPosition());
 			if (!objective.equalsTo(agentInterface.getPartner().getCurrentObjective())) return objective;
 		}
-
-
 
 		return null;
 	}
