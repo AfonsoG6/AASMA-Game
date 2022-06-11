@@ -47,9 +47,14 @@ public class Agent : MonoBehaviour {
 			}
 		}
 
+		if (getCurrentObjective() is ReachFlagObjective && partner.getCurrentObjective() is PassDoorObjective) {
+			objectives.Push(new PressButtonObjective(i, (PassDoorObjective)partner.getCurrentObjective()));
+		}
+
 		if (getCurrentObjective().isExclusive() &&
 				getCurrentObjective().GetType() == partner.getCurrentObjective().GetType()) {
 			// Give up on the current objective and support the other agent.
+			// TODO Maybe check age of each objective and give up on the oldest?
 			objectives.Pop();
 			if (partner.getCurrentObjective() is PassDoorObjective) {
 				objectives.Push(new PressButtonObjective(i, (PassDoorObjective) partner.getCurrentObjective()));
