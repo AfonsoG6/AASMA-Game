@@ -108,6 +108,7 @@ public class LevelManager : MonoBehaviour {
     private void ChangeLevel(int levelID) {
         currentLevelID = levelID;
         levelAttempt = new Attempt();
+        Time.timeScale = 1;
         
         SceneManager.LoadScene(levelNames[levelID]);
     }

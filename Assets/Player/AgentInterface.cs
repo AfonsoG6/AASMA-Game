@@ -16,29 +16,6 @@ public class AgentInterface : MonoBehaviour
         levelManager = GameObject.Find("LevelManager").GetComponent<LevelManager>();
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.U)) {
-            playerControls.toggleControlsEnabled();
-        }
-        else if (Input.GetKeyDown(KeyCode.I)) {
-            act(AgentAction.JUMP_LEFT);
-        }
-        else if (Input.GetKeyDown(KeyCode.O)) {
-            act(AgentAction.JUMP_RIGHT);
-        }
-        else if (Input.GetKeyDown(KeyCode.K)) {
-            act(AgentAction.WALK_LEFT);
-        }
-        else if (Input.GetKeyDown(KeyCode.L)) {
-            act(AgentAction.WALK_RIGHT);
-        }
-        else if (Input.GetKeyDown(KeyCode.P)) {
-            act(AgentAction.GRAB_OR_DROP);
-        }
-    }
-
     public bool isActing() {
         return acting;
     }
