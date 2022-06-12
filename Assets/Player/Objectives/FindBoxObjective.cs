@@ -17,8 +17,8 @@ public class FindBoxObjective : Objective {
 	}
 
 	public override bool isExclusive() {
-		// Finding a box follows from a SUPPORT objective: to press button or to help player get over wall
-		return true;
+		// Both agents can look for different boxes at any given time
+		return false;
 	}
 
 	public override bool isCompleted() {
