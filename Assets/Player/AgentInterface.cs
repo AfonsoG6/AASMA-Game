@@ -244,6 +244,10 @@ public class AgentInterface : MonoBehaviour
         return null;
     }
 
+    public bool hasBox() {
+        return attachedBox.activeSelf;
+    }
+
     public enum AgentAction {
 		JUMP_RIGHT,
 		JUMP_LEFT,

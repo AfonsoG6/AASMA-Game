@@ -29,12 +29,24 @@ public class PressButtonObjective : Objective {
 	public override AgentAction chooseAction() {
 		Debug.Log(agentInterface.gameObject.name + ": Pressing Button!");
 		if (target.GetComponent<Button>().pressed()) {
-			return AgentAction.STAY;
+			if (agentInterface.hasBox())
+				return AgentAction.GRAB_OR_DROP;
+			else
+				return AgentAction.STAY;
 		}
 		else return agentInterface.getActionWalkTowards(target.transform.position);
 	}
 
 	public override Objective updateObjective() {
+		// Hack, levels could have two buttons right next to each other for example
+		if (!agentInterface.hasBox() && allButtons.Count == 1) {
+			GameObject[] boxesInLevel = GameObject.FindGameObjectsWithTag("Box");
+			if (boxesInLevel.Length > 0) {
+				FindBoxObjective objective = new FindBoxObjective(agentInterface, boxesInLevel);
+				if (!objective.equalsTo(agentInterface.getPartner().getCurrentObjective())) return objective;
+			}
+		}
+
 		if (agentInterface.wasActionSuccessful()) return null;
 
 		// If the last action failed, we try another button if it exists.
