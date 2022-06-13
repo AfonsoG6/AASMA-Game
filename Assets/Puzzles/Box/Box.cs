@@ -26,7 +26,7 @@ public class Box : MonoBehaviour
 	}
 
 	private void checkInteractions(int i) {
-		if (!waitingForInteract[i] && !playerControlsManager[i].isInteracting()) {
+		if (!waitingForInteract[i]) {
 			waitingForInteract[i] = true;
 			playerControlsManager[i].setTooltipText("Press E to pick up");
 		}

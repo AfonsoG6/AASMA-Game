@@ -34,7 +34,6 @@ public class FindBoxObjective : Objective {
 		Debug.Log(agentInterface.gameObject.name + ": Looking for Box!");
 		//FIXME isBoxAt(targetDirection) && boxAt(targetDirection) == allBoxes[boxIdx] would be more correct perhaps
 		if (Math.Abs(agentInterface.gameObject.transform.position.x - target.transform.position.x) < 0.5f){
-			Debug.Log(agentInterface.gameObject.name + " Near box");
 			return AgentAction.GRAB_OR_DROP;
 		}
 		else
