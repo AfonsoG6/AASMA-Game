@@ -8,6 +8,8 @@ public class JumpOverObjective : Objective {
 	public HelpJumpOverObjective supportingObjective;
     public int targetDirection;
     public Vector3 jumpPosition;
+    public bool droppedBox = false;
+    public bool ready = false;
 	
 	public JumpOverObjective(AgentInterface agent, PassDoorObjective originalSupportedObjective) :
 				base(agent, originalSupportedObjective.target) {
@@ -25,7 +27,7 @@ public class JumpOverObjective : Objective {
 	public override bool isCompleted() {
         // Is completed when agent has effectively gone past the door by jumping over
         if (targetDirection == +1)
-            return agentInterface.getPosition().x >= target.transform.position.x;
+            return agentInterface.getPosition().x > target.transform.position.x;
 		else if (targetDirection == -1)
             return agentInterface.getPosition().x <= target.transform.position.x;
 		return false;
@@ -39,22 +41,32 @@ public class JumpOverObjective : Objective {
 	}
 
     public bool readyToJump() {
-        return Math.Abs(Vector2.Distance(agentInterface.getPosition(), jumpPosition)) < 0.5f; //fixme 0.2f
+        return Math.Abs(Vector2.Distance(agentInterface.getPosition(), jumpPosition)) < 0.8f; //fixme 0.2f
     }
 
 	public override AgentAction chooseAction() {
         Debug.Log(agentInterface.gameObject.name + ": I want to jump over!");
-        if (agentInterface.hasBox())
+        if (agentInterface.hasBox() && !droppedBox){
+            droppedBox = true;
             return AgentAction.GRAB_OR_DROP;
+        }
 		if (supportingObjective != null && supportingObjective.readyToHelp) {
             jumpPosition = new Vector3(agentInterface.getPartner().transform.position.x - 1f*targetDirection, agentInterface.getPartner().transform.position.y, agentInterface.getPartner().transform.position.z);
-            if (!readyToJump()) {
+            if(readyToJump())
+                ready = true;
+            if (!readyToJump() && !ready) {
                 return agentInterface.getActionWalkTowards(jumpPosition);
             }
-            else if (targetDirection == +1)
-                return AgentAction.JUMP_RIGHT;
-            else if (targetDirection == -1)
-                return AgentAction.JUMP_LEFT;
+            else if(ready){
+                if (targetDirection == +1){
+                    Debug.Log(agentInterface.gameObject.name + ": 1");
+                    return AgentAction.JUMP_RIGHT;
+                }
+                else if (targetDirection == -1){
+                    return AgentAction.JUMP_LEFT;
+                }
+                return AgentAction.STAY;
+            }
             else {
                 // should never get here
                 Debug.Log(agentInterface.gameObject.name + ": Bad direction! Not jumping >:("); //fixme >:(
