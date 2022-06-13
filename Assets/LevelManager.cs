@@ -26,6 +26,7 @@ public class LevelManager : MonoBehaviour {
         levelNames.Add("Intermediate_Level1");
         levelNames.Add("Intermediate_Level2");
         levelNames.Add("Intermediate_Level3");
+        levelNames.Add("Advanced_Level1");
         loadGlobalStats();
     }
 
