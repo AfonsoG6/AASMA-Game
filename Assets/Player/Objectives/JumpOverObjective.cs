@@ -32,8 +32,9 @@ public class JumpOverObjective : Objective {
 	}
 
     public override bool isFailed() {
-        if (supportingObjective != null)
+        if (agentInterface.getPartner().getCurrentObjective() is HelpJumpOverObjective && supportingObjective != null){
             return supportingObjective.isFailed();
+        }
         return false;
 	}
 

@@ -50,7 +50,6 @@ public class HelpJumpOverObjective : Objective {
 	}
 
 	public override Objective updateObjective() {
-		if (agentInterface.wasActionSuccessful()) return null; //FIXME useless?
 
 		if (!agentInterface.hasBox()) {
             GameObject[] boxesInLevel = GameObject.FindGameObjectsWithTag("Box");
@@ -59,6 +58,7 @@ public class HelpJumpOverObjective : Objective {
                 return new FindBoxObjective(agentInterface, boxesInLevel);
             }
         }
+		if (agentInterface.wasActionSuccessful()) return null; //FIXME useless?
 
 		return null;
 	}

@@ -158,7 +158,7 @@ public class AgentInterface : MonoBehaviour
 
     public IEnumerator grabOrDrop() {
         bool startingState = attachedBox.activeSelf;
-
+        Debug.Log("enters grabOrDrop()");
         acting = true;
         playerControls.setInteracting(true);
         yield return new WaitForSeconds(0.1f);
