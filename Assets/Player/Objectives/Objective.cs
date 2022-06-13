@@ -25,6 +25,7 @@ public abstract class Objective {
 
 	public abstract bool isExclusive();
 	public abstract bool isCompleted();
+	public abstract bool isFailed();
 	public abstract AgentAction chooseAction();
 	public abstract Objective updateObjective();
 }

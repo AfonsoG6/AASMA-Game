@@ -7,6 +7,7 @@ using static AgentInterface;
 public class FindBoxObjective : Objective {
 	public List<Box> allBoxes;
 	public int boxIdx;
+	public bool failed = false;
 	
 	public FindBoxObjective(AgentInterface agent, GameObject[] boxesInLevel) :
 				base(agent, boxesInLevel[0]) {
@@ -25,8 +26,13 @@ public class FindBoxObjective : Objective {
 		return agentInterface.hasBox();
 	}
 
+	public override bool isFailed() {
+		return !agentInterface.hasBox() && this.failed;
+	}
+
 	public override AgentAction chooseAction() {
 		Debug.Log(agentInterface.gameObject.name + ": Looking for Box!");
+		//FIXME isBoxAt(targetDirection) && boxAt(targetDirection) == allBoxes[boxIdx] would be more correct perhaps
 		if (Math.Abs(agentInterface.gameObject.transform.position.x - target.transform.position.x) < 0.5f)
 			return AgentAction.GRAB_OR_DROP;
 		else
@@ -42,6 +48,8 @@ public class FindBoxObjective : Objective {
 			target = allBoxes[boxIdx].gameObject;
 			return null;
 		}
+		// If couldn't grab any box, should remove this objective (mark as "completed"/failed)
+		else failed = true;
 
 		return null;
 	}

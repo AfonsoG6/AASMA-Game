@@ -25,7 +25,7 @@ public class Agent : MonoBehaviour {
 
 	private void updateObjectives() {
 		
-		if (getCurrentObjective().isCompleted()) {
+		if (getCurrentObjective().isCompleted() || getCurrentObjective().isFailed()) {
 			objectives.Pop();
 		}
 

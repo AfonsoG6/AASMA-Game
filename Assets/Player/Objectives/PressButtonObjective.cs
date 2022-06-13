@@ -8,6 +8,7 @@ public class PressButtonObjective : Objective {
 	public PassDoorObjective supportedObjective;
 	public List<Button> allButtons;
 	public int buttonIdx;
+	public bool noButtonsLeft = false;
 	
 	public PressButtonObjective(AgentInterface agent, PassDoorObjective supportedObjective) :
 				base(agent, supportedObjective.target.GetComponent<Door>().getButtons()[0].gameObject) {
@@ -26,27 +27,18 @@ public class PressButtonObjective : Objective {
 		return supportedObjective.isCompleted();
 	}
 
+	public override bool isFailed() {
+		// Fails if no buttons left 
+		return noButtonsLeft;
+	}
+
 	public override AgentAction chooseAction() {
 		Debug.Log(agentInterface.gameObject.name + ": Pressing Button!");
-		if (target.GetComponent<Button>().pressed()) {
-			if (agentInterface.hasBox())
-				return AgentAction.GRAB_OR_DROP;
-			else
-				return AgentAction.STAY;
-		}
+		if (target.GetComponent<Button>().pressed()) return AgentAction.STAY;
 		else return agentInterface.getActionWalkTowards(target.transform.position);
 	}
 
 	public override Objective updateObjective() {
-		// Hack, levels could have two buttons right next to each other for example
-		if (!agentInterface.hasBox() && allButtons.Count == 1) {
-			GameObject[] boxesInLevel = GameObject.FindGameObjectsWithTag("Box");
-			if (boxesInLevel.Length > 0) {
-				FindBoxObjective objective = new FindBoxObjective(agentInterface, boxesInLevel);
-				if (!objective.equalsTo(agentInterface.getPartner().getCurrentObjective())) return objective;
-			}
-		}
-
 		if (agentInterface.wasActionSuccessful()) return null;
 
 		// If the last action failed, we try another button if it exists.
@@ -56,6 +48,11 @@ public class PressButtonObjective : Objective {
 			return null;
 		}
 
+		noButtonsLeft = true;
+
+		return null;
+
+		// FIXME: Remove this? Kind of useless since older objectives are always prioritized
 		// If the last action failed, there are no more buttons, and the action failed because a door is locked,
 		// our new objective is to pass through the door.
 		if (agentInterface.getLastAction() == AgentAction.WALK_RIGHT && agentInterface.isDoorAt(Vector2.right)) {
@@ -66,7 +63,5 @@ public class PressButtonObjective : Objective {
 			PassDoorObjective objective = new PassDoorObjective(agentInterface, agentInterface.getDoorAt(Vector2.left), agentInterface.getPosition());
 			if (!objective.equalsTo(agentInterface.getPartner().getCurrentObjective())) return objective;
 		}
-
-		return null;
 	}
 }

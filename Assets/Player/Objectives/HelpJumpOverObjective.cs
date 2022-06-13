@@ -7,6 +7,8 @@ using static AgentInterface;
 public class HelpJumpOverObjective : Objective {
 	public JumpOverObjective supportedObjective;
     public int targetDirection;
+    public bool lookedForBox = false;
+    public bool readyToHelp = false;
 	
 	public HelpJumpOverObjective(AgentInterface agent, JumpOverObjective supportedObjective) :
 				base(agent, supportedObjective.target) {
@@ -23,25 +25,39 @@ public class HelpJumpOverObjective : Objective {
 		return supportedObjective.isCompleted();
 	}
 
+    public override bool isFailed() {
+        return !agentInterface.hasBox() && lookedForBox;
+    }
+
 	public override AgentAction chooseAction() {
         // If agent is holding box, go towards target (door)
         // If not, updateObjective will push FindBox as an objective before this
 		Debug.Log(agentInterface.gameObject.name + ": Helping partner jump over!");
 		if (agentInterface.hasBox()) {
-			if (agentInterface.isDoorAt(new Vector3(targetDirection, 0, 0)))
+			if (agentInterface.isDoorAt(new Vector3(targetDirection, 0, 0))) {
+                readyToHelp = true;
 			    return AgentAction.STAY;
-            else
+            }
+            else {
+                readyToHelp = false; // fixme useless
                 return agentInterface.getActionWalkTowards(target.transform.position);
+            }
 		}
-		else return AgentAction.STAY; // Should never get here
+		else {
+            lookedForBox = false;
+            return AgentAction.STAY; // Should never get here
+        }
 	}
 
 	public override Objective updateObjective() {
-		if (agentInterface.wasActionSuccessful()) return null;
+		if (agentInterface.wasActionSuccessful()) return null; //FIXME useless?
 
 		if (!agentInterface.hasBox()) {
             GameObject[] boxesInLevel = GameObject.FindGameObjectsWithTag("Box");
-			if (boxesInLevel.Length > 0) return new FindBoxObjective(agentInterface, boxesInLevel);
+			if (boxesInLevel.Length > 0) {
+                lookedForBox = true;
+                return new FindBoxObjective(agentInterface, boxesInLevel);
+            }
         }
 
 		return null;
