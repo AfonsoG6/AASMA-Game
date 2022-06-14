@@ -63,6 +63,7 @@ public class ReachFlagObjective : Objective {
 				partnerObjective.attempts[1, 1] = true;
 				return new PressButtonObjective(agentInterface, partnerObjective);
 			}
+			return new PressButtonObjective(agentInterface, partnerObjective);
 		}
 		// probably useless
 		else if (partner.getCurrentObjective() is JumpOverObjective) {
