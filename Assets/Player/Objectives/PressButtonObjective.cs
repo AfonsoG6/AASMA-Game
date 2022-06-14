@@ -8,6 +8,7 @@ public class PressButtonObjective : Objective {
 	public PassDoorObjective supportedObjective;
 	public List<Button> allButtons;
 	public int buttonIdx;
+	public bool triedAllButtonsOnce = false;
 	public bool noButtonsLeft = false;
 	
 	public PressButtonObjective(AgentInterface agent, PassDoorObjective supportedObjective) :
@@ -42,19 +43,20 @@ public class PressButtonObjective : Objective {
 		if (agentInterface.wasActionSuccessful()) return null;
 
 		// If the last action failed, we try another button if it exists.
-		if (buttonIdx+1 < allButtons.Count) {
-			buttonIdx++;
-			target = allButtons[buttonIdx].gameObject;
-			return null;
+		if (!triedAllButtonsOnce) {
+			if (buttonIdx+1 < allButtons.Count) {
+				buttonIdx++;
+				target = allButtons[buttonIdx].gameObject;
+				return null;
+			}
+			else {
+				buttonIdx = 0;
+				triedAllButtonsOnce = true;
+				return null;
+			}
 		}
-
-		noButtonsLeft = true;
-
-		return null;
-
-		// FIXME: Remove this? Kind of useless since older objectives are always prioritized
-		// If the last action failed, there are no more buttons, and the action failed because a door is locked,
-		// our new objective is to pass through the door.
+		
+		// If we already tried all buttons that were easily accessible
 		if (agentInterface.getLastAction() == AgentAction.WALK_RIGHT && agentInterface.isDoorAt(Vector2.right)) {
 			PassDoorObjective objective = new PassDoorObjective(agentInterface, agentInterface.getDoorAt(Vector2.right), agentInterface.getPosition());
 			if (!objective.equalsTo(agentInterface.getPartner().getCurrentObjective())) return objective;
@@ -62,6 +64,16 @@ public class PressButtonObjective : Objective {
 		if (agentInterface.getLastAction() == AgentAction.WALK_LEFT && agentInterface.isDoorAt(Vector2.left)) {
 			PassDoorObjective objective = new PassDoorObjective(agentInterface, agentInterface.getDoorAt(Vector2.left), agentInterface.getPosition());
 			if (!objective.equalsTo(agentInterface.getPartner().getCurrentObjective())) return objective;
+		}
+
+		if (buttonIdx+1 < allButtons.Count) {
+			buttonIdx++;
+			target = allButtons[buttonIdx].gameObject;
+			return null;
+		}
+		else {
+			noButtonsLeft = true;
+			return null;
 		}
 	}
 }
