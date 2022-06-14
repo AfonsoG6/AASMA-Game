@@ -9,7 +9,7 @@ public class FindBoxObjective : Objective {
 	public bool failed = false;
 	
 	public FindBoxObjective(AgentInterface agent) :
-				base(agent, updateTarget()) {}
+				base(agent, findTarget()) {}
 
 	public override bool isExclusive() {
 		// Both agents can look for different boxes at any given time
@@ -44,7 +44,16 @@ public class FindBoxObjective : Objective {
 		return null;
 	}
 
-	private GameObject updateTarget() {
+	private static GameObject findTarget() {
+		GameObject[] boxesInLevel = GameObject.FindGameObjectsWithTag("Box");
+		Dictionary<int, Box> allBoxes = new Dictionary<int, Box>();
+		foreach (GameObject box in boxesInLevel) {
+			allBoxes.Add(box.GetComponent<Box>().getID(), box.GetComponent<Box>());
+		}
+		return allBoxes[0].gameObject;
+	}
+
+	private void updateTarget() {
 		GameObject[] boxesInLevel = GameObject.FindGameObjectsWithTag("Box");
 		Dictionary<int, Box> allBoxes = new Dictionary<int, Box>();
 		foreach (GameObject box in boxesInLevel) {
@@ -52,11 +61,9 @@ public class FindBoxObjective : Objective {
 		}
 		if (boxId < allBoxes.Count) {
 			target = allBoxes[boxId].gameObject;
-			return allBoxes[boxId].gameObject;
 		}
 		else {
 			failed = true;
-			return null;
 		}
 	}
 }
