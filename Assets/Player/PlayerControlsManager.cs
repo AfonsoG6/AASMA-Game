@@ -18,6 +18,7 @@ public class PlayerControlsManager : MonoBehaviour
 	private TextMesh toolTip;
 	private GameObject attachedBox;
 	private GameObject boxPrefab;
+	private int grabbedBoxID = -1;
 	private bool interacting = false;
 	private float moving = 0f;
 	private bool jumping = false;
@@ -71,6 +72,7 @@ public class PlayerControlsManager : MonoBehaviour
 			// Spawn Box
 			Instantiate(boxPrefab, attachedBox.transform.position, Quaternion.identity);
 			attachedBox.SetActive(false);
+			attachedBox.GetComponent<Box>().setID(grabbedBoxID);
 		}
 	}
 
@@ -111,6 +113,7 @@ public class PlayerControlsManager : MonoBehaviour
 
 	public void pickBox() {
 		attachedBox.SetActive(true);
+		grabbedBoxID = attachedBox.GetComponent<Box>().getID();
 		pickupCooldown = PICKUP_COOLDOWN;
 	}
 

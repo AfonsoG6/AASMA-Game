@@ -39,7 +39,7 @@ public class PressButtonWithBoxObjective : PressButtonObjective {
 		if (!agentInterface.hasBox() && !lookedForBox) {
 			GameObject[] boxesInLevel = GameObject.FindGameObjectsWithTag("Box");
 			if (boxesInLevel.Length > 0) {
-				FindBoxObjective objective = new FindBoxObjective(agentInterface, boxesInLevel);
+				FindBoxObjective objective = new FindBoxObjective(agentInterface);
 				if (!objective.equalsTo(agentInterface.getPartner().getCurrentObjective())) {
                     lookedForBox = true;
                     return objective;

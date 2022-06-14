@@ -5,17 +5,11 @@ using UnityEngine;
 using static AgentInterface;
 
 public class FindBoxObjective : Objective {
-	public List<Box> allBoxes;
-	public int boxIdx;
+	public int boxId = 0;
 	public bool failed = false;
 	
-	public FindBoxObjective(AgentInterface agent, GameObject[] boxesInLevel) :
-				base(agent, boxesInLevel[0]) {
-		this.allBoxes = new List<Box>();
-		foreach (GameObject box in boxesInLevel)
-			allBoxes.Add(box.GetComponent<Box>());
-		this.boxIdx = 0;
-	}
+	public FindBoxObjective(AgentInterface agent) :
+				base(agent, updateTarget()) {}
 
 	public override bool isExclusive() {
 		// Both agents can look for different boxes at any given time
@@ -44,14 +38,25 @@ public class FindBoxObjective : Objective {
 		if (agentInterface.wasActionSuccessful()) return null;
 
 		// If the last action failed, we try another box if it exists.
-		if (boxIdx+1 < allBoxes.Count) {
-			boxIdx++;
-			target = allBoxes[boxIdx].gameObject;
-			return null;
-		}
-		// If couldn't grab any box, should remove this objective (mark as "completed"/failed)
-		else failed = true;
+		boxId++;
+		updateTarget();
 
 		return null;
+	}
+
+	private GameObject updateTarget() {
+		GameObject[] boxesInLevel = GameObject.FindGameObjectsWithTag("Box");
+		Dictionary<int, Box> allBoxes = new Dictionary<int, Box>();
+		foreach (GameObject box in boxesInLevel) {
+			allBoxes.Add(box.GetComponent<Box>().getID(), box.GetComponent<Box>());
+		}
+		if (boxId < allBoxes.Count) {
+			target = allBoxes[boxId].gameObject;
+			return allBoxes[boxId].gameObject;
+		}
+		else {
+			failed = true;
+			return null;
+		}
 	}
 }

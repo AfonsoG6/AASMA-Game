@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 public class Box : MonoBehaviour
 {
+	[SerializeField] public int ID = 0;
 	protected PlayerControlsManager[] playerControlsManager = new PlayerControlsManager[2];
 	private bool[] waitingForInteract = {false, false};
 	private Vector3 originalPosition;
@@ -49,5 +50,13 @@ public class Box : MonoBehaviour
 			waitingForInteract[1] = false;
 			playerControlsManager[1].clearTooltipText();
 		}
+	}
+
+	public void setID(int id) {
+		ID = id;
+	}
+
+	public int getID() {
+		return ID;
 	}
 }
