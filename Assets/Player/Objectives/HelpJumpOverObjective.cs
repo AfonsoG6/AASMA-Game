@@ -55,7 +55,7 @@ public class HelpJumpOverObjective : Objective {
             GameObject[] boxesInLevel = GameObject.FindGameObjectsWithTag("Box");
 			if (boxesInLevel.Length > 0) {
                 lookedForBox = true;
-                return new FindBoxObjective(agentInterface, boxesInLevel);
+                return new FindBoxObjective(agentInterface);
             }
         }
 		if (agentInterface.wasActionSuccessful()) return null; //FIXME useless?
