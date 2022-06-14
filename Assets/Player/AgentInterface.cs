@@ -65,7 +65,7 @@ public class AgentInterface : MonoBehaviour
         }
 		playerControls.setJumping(false);
 		playerControls.setMoving(1);
-		while (transform.position.x > targetPos.x) {
+		while (transform.position.x < targetPos.x) {
             yield return new WaitForFixedUpdate();
             timer += Time.fixedDeltaTime;
             if (timer > TIMEOUT) {
@@ -98,7 +98,7 @@ public class AgentInterface : MonoBehaviour
         }
 		playerControls.setJumping(false);
 		playerControls.setMoving(-1);
-		while (transform.position.x < targetPos.x) {
+		while (transform.position.x > targetPos.x) {
             yield return new WaitForFixedUpdate();
             timer += Time.fixedDeltaTime;
             if (timer > TIMEOUT) {
