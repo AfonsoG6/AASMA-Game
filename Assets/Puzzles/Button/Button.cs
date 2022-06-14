@@ -39,7 +39,7 @@ public class Button : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.gameObject.tag == "Player" || other.gameObject.tag == "Box") {
+        if (other.gameObject.tag == "Player" || other.gameObject.tag == "BoxPhysics") {
             DOOR_TO_OPEN.addObjectOpening(gameObject);
             pressing++;
         }
@@ -47,7 +47,7 @@ public class Button : MonoBehaviour
 
     private void OnTriggerExit2D(Collider2D other)
     {
-        if (other.gameObject.tag == "Player" || other.gameObject.tag == "Box") {
+        if (other.gameObject.tag == "Player" || other.gameObject.tag == "BoxPhysics") {
             DOOR_TO_OPEN.removeObjectOpening(gameObject);
             pressing--;
         }
