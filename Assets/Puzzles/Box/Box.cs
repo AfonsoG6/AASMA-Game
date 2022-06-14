@@ -9,7 +9,7 @@ public class Box : MonoBehaviour
 	private Vector3 originalPosition;
 
 	protected void pick(int i) {
-		playerControlsManager[i].pickBox();
+		playerControlsManager[i].pickBox(ID);
 		Destroy(transform.parent.gameObject);
 	}
 

@@ -59,7 +59,7 @@ public class FindBoxObjective : Objective {
 		foreach (GameObject box in boxesInLevel) {
 			allBoxes.Add(box.GetComponent<Box>().getID(), box.GetComponent<Box>());
 		}
-		if (boxId < allBoxes.Count) {
+		if (allBoxes.ContainsKey(boxId)) {
 			target = allBoxes[boxId].gameObject;
 		}
 		else {

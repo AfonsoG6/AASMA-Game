@@ -70,9 +70,9 @@ public class PlayerControlsManager : MonoBehaviour
 		}
 		else if (hasBox() && isInteracting()) {
 			// Spawn Box
-			Instantiate(boxPrefab, attachedBox.transform.position, Quaternion.identity);
+			GameObject newBox = Instantiate(boxPrefab, attachedBox.transform.position, Quaternion.identity);
 			attachedBox.SetActive(false);
-			attachedBox.GetComponent<Box>().setID(grabbedBoxID);
+			newBox.GetComponentInChildren<Box>().setID(grabbedBoxID);
 		}
 	}
 
@@ -91,7 +91,7 @@ public class PlayerControlsManager : MonoBehaviour
 	private GameObject findAttachedBoxInChildren() {
 		Transform[] transforms = GetComponentsInChildren<Transform>();
 		foreach (Transform t in transforms) {
-			if (t.tag == "Box") {
+			if (t.name == "AttachedBox") {
 				return t.gameObject;
 			}
 		}
@@ -111,9 +111,9 @@ public class PlayerControlsManager : MonoBehaviour
 		toolTip.text = "";
 	}
 
-	public void pickBox() {
+	public void pickBox(int id) {
 		attachedBox.SetActive(true);
-		grabbedBoxID = attachedBox.GetComponent<Box>().getID();
+		grabbedBoxID = id;
 		pickupCooldown = PICKUP_COOLDOWN;
 	}
 
