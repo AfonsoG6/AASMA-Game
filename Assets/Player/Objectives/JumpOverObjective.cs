@@ -27,10 +27,9 @@ public class JumpOverObjective : Objective {
 	public override bool isCompleted() {
         // Is completed when agent has effectively gone past the door by jumping over
         if (targetDirection == +1)
-            return agentInterface.getPosition().x > target.transform.position.x;
-		else if (targetDirection == -1)
+            return agentInterface.getPosition().x >= target.transform.position.x;
+		else
             return agentInterface.getPosition().x <= target.transform.position.x;
-		return false;
 	}
 
     public override bool isFailed() {
@@ -59,7 +58,6 @@ public class JumpOverObjective : Objective {
             }
             else if(ready){
                 if (targetDirection == +1){
-                    Debug.Log(agentInterface.gameObject.name + ": 1");
                     return AgentAction.JUMP_RIGHT;
                 }
                 else if (targetDirection == -1){
@@ -68,8 +66,7 @@ public class JumpOverObjective : Objective {
                 return AgentAction.STAY;
             }
             else {
-                // should never get here
-                Debug.Log(agentInterface.gameObject.name + ": Bad direction! Not jumping >:("); //fixme >:(
+                // Should never get here
                 return AgentAction.STAY;
             }
         }
@@ -79,7 +76,7 @@ public class JumpOverObjective : Objective {
 	public override Objective updateObjective() {
 		if (agentInterface.wasActionSuccessful()) return null;
 
-        // TODO: idk
+        // Probably nothing needed here as isFailed() will automatically remove this if needed
         
 		return null;
 	}

@@ -8,8 +8,8 @@ public class FindBoxObjective : Objective {
 	public int boxId = 0;
 	public bool failed = false;
 	
-	public FindBoxObjective(AgentInterface agent) :
-				base(agent, findTarget()) {}
+	public FindBoxObjective(AgentInterface agent, Vector3 doorPosition) :
+				base(agent, findTarget(agent.getPosition(), doorPosition)) {}
 
 	public override bool isExclusive() {
 		// Both agents can look for different boxes at any given time
@@ -44,11 +44,16 @@ public class FindBoxObjective : Objective {
 		return null;
 	}
 
-	private static GameObject findTarget() {
+	private static GameObject findTarget(Vector3 agentPosition, Vector3 doorPosition) {
 		GameObject[] boxesInLevel = GameObject.FindGameObjectsWithTag("Box");
 		Dictionary<int, Box> allBoxes = new Dictionary<int, Box>();
 		foreach (GameObject box in boxesInLevel) {
-			allBoxes.Add(box.GetComponent<Box>().getID(), box.GetComponent<Box>());
+			// Optimization
+			Vector3 boxPosition = box.transform.position;
+			if ((agentPosition.x <= doorPosition.x && boxPosition.x <= doorPosition.x) ||
+                (agentPosition.x >= doorPosition.x && boxPosition.x >= doorPosition.x)) {
+                allBoxes.Add(box.GetComponent<Box>().getID(), box.GetComponent<Box>());
+            }
 		}
 		return allBoxes[0].gameObject;
 	}

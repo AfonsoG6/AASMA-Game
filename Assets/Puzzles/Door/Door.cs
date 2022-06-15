@@ -48,6 +48,20 @@ public class Door : MonoBehaviour
     public List<Button> getButtons() {
         return buttons;
     }
+    
+    // Optimization
+    public List<Button> getReachableButtons(Vector3 agentPosition) {
+        Vector3 doorPosition = gameObject.transform.position;
+        List<Button> reachableButtons = new List<Button>();
+        foreach (Button button in buttons) {
+            Vector3 buttonPosition = button.gameObject.transform.position;
+            if ((agentPosition.x <= doorPosition.x && buttonPosition.x <= doorPosition.x) ||
+                (agentPosition.x >= doorPosition.x && buttonPosition.x >= doorPosition.x)) {
+                reachableButtons.Add(button);
+            }
+        }
+        return reachableButtons;
+    }
 
     public void addButton(Button b) {
         buttons.Add(b);

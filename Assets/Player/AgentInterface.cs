@@ -215,8 +215,8 @@ public class AgentInterface : MonoBehaviour
         }
     }
 
-    public string[] getTagsOfEverythingAt(Vector3 direction) {
-        RaycastHit2D[] hits = Physics2D.RaycastAll(transform.position, direction, 1f);
+    public string[] getTagsOfEverythingAt(Vector3 sourcePos, Vector3 direction) {
+        RaycastHit2D[] hits = Physics2D.RaycastAll(sourcePos, direction, 1f);
         string[] tags = new string[hits.Length];
         for (int i = 0; i < hits.Length; i++) {
             tags[i] = hits[i].collider.tag;
@@ -225,15 +225,15 @@ public class AgentInterface : MonoBehaviour
     }
 
     public bool isGroundAt(Vector3 direction) {
-        return Array.IndexOf(getTagsOfEverythingAt(direction), "Ground") > -1;
+        return Array.IndexOf(getTagsOfEverythingAt(getPosition(), direction), "Ground") > -1;
     }
 
     public bool isDoorAt(Vector3 direction) {
-        return Array.IndexOf(getTagsOfEverythingAt(direction), "Door") > -1;
+        return Array.IndexOf(getTagsOfEverythingAt(getPosition(), direction), "Door") > -1;
     }
 
     public GameObject getDoorAt(Vector3 direction) {
-        RaycastHit2D[] hits = Physics2D.RaycastAll(transform.position, direction, 1f);
+        RaycastHit2D[] hits = Physics2D.RaycastAll(getPosition(), direction, 1f);
         foreach (RaycastHit2D hit in hits) {
             if (hit.collider.tag == "Door") {
                 return hit.collider.gameObject;
@@ -244,6 +244,36 @@ public class AgentInterface : MonoBehaviour
 
     public bool hasBox() {
         return attachedBox.activeSelf;
+    }
+
+    public bool boxExists() {
+        return GameObject.FindGameObjectsWithTag("Box").Length > 0 || this.hasBox();
+    }
+
+    // Optimization
+    public bool reachableBoxExists(Vector3 doorPosition) {
+        GameObject[] boxesInLevel = GameObject.FindGameObjectsWithTag("Box");
+		foreach (GameObject box in boxesInLevel) {
+			Vector3 boxPosition = box.transform.position;
+			if ((getPosition().x <= doorPosition.x && boxPosition.x <= doorPosition.x) ||
+                (getPosition().x >= doorPosition.x && boxPosition.x >= doorPosition.x)) {
+                return true;
+            }
+		}
+        return false;
+    }
+
+    public bool canJumpOverDoor(Vector3 doorPosition, int direction) {
+        Vector3 sourceDirection = new Vector3(direction, 0, 0);
+        Vector3 sourcePosition = new Vector3(doorPosition.x - direction, doorPosition.y + 2, doorPosition.z);
+        return !(Array.IndexOf(getTagsOfEverythingAt(sourcePosition, sourceDirection), "Ground") > -1);
+    }
+
+    public bool hasGonePastDoor(Vector3 doorPosition, int direction) {
+        if (direction == +1)
+			return getPosition().x > doorPosition.x;
+		else
+			return getPosition().x < doorPosition.x;
     }
 
     public enum AgentAction {

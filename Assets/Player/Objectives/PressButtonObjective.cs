@@ -15,8 +15,14 @@ public class PressButtonObjective : Objective {
 				base(agent, supportedObjective.target.GetComponent<Door>().getButtons()[0].gameObject) {
 		this.supportedObjective = supportedObjective;
 		this.allButtons = new List<Button>();
-		allButtons.AddRange(supportedObjective.target.GetComponent<Door>().getButtons());
+		allButtons.AddRange(supportedObjective.target.GetComponent<Door>().getReachableButtons(agent.getPosition()));
 		this.buttonIdx = 0;
+		if (allButtons.Count > 0)
+			target = allButtons[buttonIdx].gameObject;
+		else {
+			triedAllButtonsOnce = true;
+			noButtonsLeft = true;
+		}
 	}
 
 	public override bool isExclusive() {
