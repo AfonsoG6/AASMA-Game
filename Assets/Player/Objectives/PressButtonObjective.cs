@@ -41,7 +41,7 @@ public class PressButtonObjective : Objective {
 
 	public override AgentAction chooseAction() {
 		Debug.Log(agentInterface.gameObject.name + ": Pressing Button!");
-		if (target.GetComponent<Button>().pressed()) return AgentAction.STAY;
+		if (target.GetComponent<Button>().pressedByPlayer()) return AgentAction.STAY;
 		else return agentInterface.getActionWalkTowards(target.transform.position);
 	}
 

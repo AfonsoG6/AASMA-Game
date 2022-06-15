@@ -10,7 +10,8 @@ public class Button : MonoBehaviour
 
     SpriteRenderer spriteRenderer = null;
 
-    private int pressing = 0;
+    private int playersPressing = 0;
+    private int boxesPressing = 0;
 
     void Awake()
     {
@@ -29,7 +30,7 @@ public class Button : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (pressing > 0 && spriteRenderer != null) {
+        if (pressed() && spriteRenderer != null) {
             spriteRenderer.sprite = SPRITE_PRESSED;
         }
         else {
@@ -39,17 +40,25 @@ public class Button : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.gameObject.tag == "Player" || other.gameObject.tag == "BoxPhysics") {
+        if (other.gameObject.tag == "Player") {
             DOOR_TO_OPEN.addObjectOpening(gameObject);
-            pressing++;
+            playersPressing++;
+        }
+        else if (other.gameObject.tag == "BoxPhysics") {
+            DOOR_TO_OPEN.addObjectOpening(gameObject);
+            boxesPressing++;
         }
     }
 
     private void OnTriggerExit2D(Collider2D other)
     {
-        if (other.gameObject.tag == "Player" || other.gameObject.tag == "BoxPhysics") {
+        if (other.gameObject.tag == "Player") {
             DOOR_TO_OPEN.removeObjectOpening(gameObject);
-            pressing--;
+            playersPressing--;
+        }
+        if (other.gameObject.tag == "BoxPhysics") {
+            DOOR_TO_OPEN.removeObjectOpening(gameObject);
+            boxesPressing--;
         }
     }
 
@@ -59,6 +68,14 @@ public class Button : MonoBehaviour
     }
 
     public bool pressed() {
-        return pressing > 0;
+        return playersPressing+boxesPressing > 0;
+    }
+
+    public bool pressedByBox() {
+        return boxesPressing > 0;
+    }
+
+    public bool pressedByPlayer() {
+        return playersPressing > 0;
     }
 }

@@ -12,6 +12,7 @@ TagManager:
   - Tooltip
   - Flag
   - OrderingInterface
+  - BoxPhysics
   layers:
   - Default
   - TransparentFX

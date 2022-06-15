@@ -13,7 +13,7 @@ public class PressButtonWithBoxObjective : PressButtonObjective {
 				base(agent, supportedObjective) { }
 
     public override bool isCompleted() {
-		return base.isCompleted() || (!agentInterface.hasBox() && target.GetComponent<Button>().pressed()); //fixme?
+		return base.isCompleted() || (!agentInterface.hasBox() && target.GetComponent<Button>().pressedByBox());
 	}
 
     public override bool isFailed() {
@@ -24,7 +24,7 @@ public class PressButtonWithBoxObjective : PressButtonObjective {
 		Debug.Log(agentInterface.gameObject.name + ": Dropping off box on button!");
 		if (isFailed())
 			return AgentAction.GRAB_OR_DROP;
-        if (target.GetComponent<Button>().pressed()) {
+        if (target.GetComponent<Button>().pressedByPlayer()) {
 			if (agentInterface.hasBox()) {
                 droppedBox = true;
 				return AgentAction.GRAB_OR_DROP;
