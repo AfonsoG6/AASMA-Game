@@ -34,7 +34,7 @@ public class ReachFlagObjective : Objective {
 	public override Objective updateObjective() {
 		// FIXME: duplicated code
 		Agent partner = base.agentInterface.getPartner();
-		if (partner.getCurrentObjective() is PassDoorObjective && this.isOlderThan(partner.getCurrentObjective())) {
+		if (partner.getCurrentObjective() is PassDoorObjective) {
 			PassDoorObjective partnerObjective = (PassDoorObjective)partner.getCurrentObjective();
 			if (partnerObjective.target.GetComponent<Door>().getReachableButtons(agentInterface.getPosition()).Count <= 0)
 				return new JumpOverObjective(base.agentInterface, partnerObjective);
@@ -51,6 +51,10 @@ public class ReachFlagObjective : Objective {
 			return newObjective;
 		}
 		else if (!agentInterface.wasActionSuccessful()) {
+			PassDoorObjective newObjective = agentInterface.getPassDoorObjective();
+			if (newObjective != null) {
+				return newObjective;
+			}
 			if (agentInterface.getLastAction() == AgentAction.WALK_RIGHT && agentInterface.isDoorAt(Vector2.right)) {
 				return new PassDoorObjective(agentInterface, agentInterface.getDoorAt(Vector2.right), agentInterface.getPosition());
 			}

@@ -223,6 +223,22 @@ public class AgentInterface : MonoBehaviour
         }
     }
 
+    public PassDoorObjective getPassDoorObjective() {
+        if (getLastAction() == AgentAction.WALK_RIGHT && isDoorAt(Vector2.right)) {
+				return new PassDoorObjective(this, getDoorAt(Vector2.right), getPosition());
+        }
+        else if (getLastAction() == AgentAction.WALK_LEFT && isDoorAt(Vector2.left)) {
+            return new PassDoorObjective(this, getDoorAt(Vector2.left), getPosition());
+        }
+        else if (getLastAction() == AgentAction.JUMP_RIGHT && isDoorAt(Vector2.right, true)) {
+			return new PassDoorObjective(this, getDoorAt(Vector2.right, true), getPosition());
+        }
+        else if (getLastAction() == AgentAction.JUMP_LEFT && isDoorAt(Vector2.left, true)) {
+            return new PassDoorObjective(this, getDoorAt(Vector2.left, true), getPosition());
+        }
+        else return null;
+    }
+
     public string[] getTagsOfEverythingAt(Vector3 sourcePos, Vector3 direction) {
         RaycastHit2D[] hits = Physics2D.RaycastAll(sourcePos, direction, 1f);
         string[] tags = new string[hits.Length];
@@ -232,16 +248,22 @@ public class AgentInterface : MonoBehaviour
         return tags;
     }
 
-    public bool isGroundAt(Vector3 direction) {
-        return Array.IndexOf(getTagsOfEverythingAt(getPosition(), direction), "Ground") > -1;
+    public bool isGroundAt(Vector3 direction, bool upOne = false) {
+        Vector3 origin = getPosition();
+        if (upOne) origin.y += 1;
+        return Array.IndexOf(getTagsOfEverythingAt(origin, direction), "Ground") > -1;
     }
 
-    public bool isDoorAt(Vector3 direction) {
-        return Array.IndexOf(getTagsOfEverythingAt(getPosition(), direction), "Door") > -1;
+    public bool isDoorAt(Vector3 direction, bool upOne = false) {
+        Vector3 origin = getPosition();
+        if (upOne) origin.y += 1;
+        return Array.IndexOf(getTagsOfEverythingAt(origin, direction), "Door") > -1;
     }
 
-    public GameObject getDoorAt(Vector3 direction) {
-        RaycastHit2D[] hits = Physics2D.RaycastAll(getPosition(), direction, 1f);
+    public GameObject getDoorAt(Vector3 direction, bool upOne = false) {
+        Vector3 origin = getPosition();
+        if (upOne) origin.y += 1;
+        RaycastHit2D[] hits = Physics2D.RaycastAll(origin, direction, 1f);
         foreach (RaycastHit2D hit in hits) {
             if (hit.collider.tag == "Door") {
                 return hit.collider.gameObject;
