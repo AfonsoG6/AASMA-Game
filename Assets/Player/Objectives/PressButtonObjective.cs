@@ -63,13 +63,9 @@ public class PressButtonObjective : Objective {
 		}
 		
 		// If we already tried all buttons that were easily accessible
-		if (agentInterface.getLastAction() == AgentAction.WALK_RIGHT && agentInterface.isDoorAt(Vector2.right)) {
-			PassDoorObjective objective = new PassDoorObjective(agentInterface, agentInterface.getDoorAt(Vector2.right), agentInterface.getPosition());
-			if (!objective.equalsTo(agentInterface.getPartner().getCurrentObjective())) return objective;
-		}
-		if (agentInterface.getLastAction() == AgentAction.WALK_LEFT && agentInterface.isDoorAt(Vector2.left)) {
-			PassDoorObjective objective = new PassDoorObjective(agentInterface, agentInterface.getDoorAt(Vector2.left), agentInterface.getPosition());
-			if (!objective.equalsTo(agentInterface.getPartner().getCurrentObjective())) return objective;
+		PassDoorObjective newObjective = agentInterface.getPassDoorObjective();
+		if (newObjective != null && !newObjective.equalsTo(supportedObjective)) {
+			return newObjective;
 		}
 
 		if (buttonIdx+1 < allButtons.Count) {
