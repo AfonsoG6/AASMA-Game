@@ -7,20 +7,31 @@ using static AgentInterface;
 public class Agent : MonoBehaviour {
 	private AgentInterface i;
 	private Stack<Objective> objectives;
+	private List<AgentInterface.AgentAction> solution;
 
 	void Awake()
     {	
         i = GetComponent<AgentInterface>();
 		objectives = new Stack<Objective>();
         objectives.Push(new ReachFlagObjective(i));
+		LevelManager levelManager = GameObject.Find("LevelManager").GetComponent<LevelManager>();
+		if (levelManager.isScriptedRun()) {
+			solution = levelManager.getCurrentLevelSolution((gameObject.name == "Player1")? 0 : 1);
+		}
     }
 
 	void FixedUpdate()
 	{
 		if (i.isActing()) return;
 		
-		updateObjectives();
-		i.act(getCurrentObjective().chooseAction());
+		if (solution != null) {
+			i.act(solution[0]);
+			solution.RemoveAt(0);
+		}
+		else {
+			updateObjectives();
+			i.act(getCurrentObjective().chooseAction());
+		}
 	}
 
 	private void updateObjectives() {

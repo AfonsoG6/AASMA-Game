@@ -12,6 +12,7 @@ public class LevelManager : MonoBehaviour {
     private GameObject winCanvasPrefab;
     private List<string> levelNames = new List<string>();
     private bool isFullAttempt = false;
+    private bool isPerfectRun = false;
     private int currentLevelID;
     private Attempt fullAttempt = null;
     private Attempt levelAttempt = null;
@@ -27,6 +28,8 @@ public class LevelManager : MonoBehaviour {
         levelNames.Add("Intermediate_Level2");
         levelNames.Add("Intermediate_Level3");
         levelNames.Add("Advanced_Level1");
+        levelNames.Add("Advanced_Level2");
+        levelNames.Add("Advanced_Level3");
         loadGlobalStats();
     }
 
@@ -93,7 +96,13 @@ public class LevelManager : MonoBehaviour {
     }
 
     public void StartAttempt(int buttonID) {
-        if (buttonID == -1) {
+        if (buttonID == -2) {
+            isFullAttempt = true;
+            isPerfectRun = true;
+            fullAttempt = new Attempt();
+            ChangeLevel(0);
+        }
+        else if (buttonID == -1) {
             // Full Attempt (All Levels)
             isFullAttempt = true;
             fullAttempt = new Attempt();
@@ -117,5 +126,147 @@ public class LevelManager : MonoBehaviour {
     public void GoToNextLevel() {
         currentLevelID++;
         ChangeLevel(currentLevelID);
+    }
+
+    public bool isScriptedRun() {
+        return isPerfectRun;
+    }
+
+    public List<AgentInterface.AgentAction> getCurrentLevelSolution(int agentNum) {
+        List<AgentInterface.AgentAction> solution = new List<AgentInterface.AgentAction>();
+        if (agentNum == 0) {
+            switch(currentLevelID) {
+                case 0:
+                    solution.Add(AgentInterface.AgentAction.WALK_RIGHT);
+                    solution.Add(AgentInterface.AgentAction.WALK_RIGHT);
+                    solution.Add(AgentInterface.AgentAction.WALK_RIGHT);
+                    solution.Add(AgentInterface.AgentAction.JUMP_RIGHT);
+                    solution.Add(AgentInterface.AgentAction.JUMP_RIGHT);
+                    solution.Add(AgentInterface.AgentAction.JUMP_RIGHT);
+                    solution.Add(AgentInterface.AgentAction.JUMP_RIGHT);
+                    solution.Add(AgentInterface.AgentAction.WALK_RIGHT);
+                    solution.Add(AgentInterface.AgentAction.WALK_RIGHT);
+                    solution.Add(AgentInterface.AgentAction.WALK_RIGHT);
+                    solution.Add(AgentInterface.AgentAction.WALK_RIGHT);
+                    solution.Add(AgentInterface.AgentAction.WALK_RIGHT);
+                    solution.Add(AgentInterface.AgentAction.WALK_RIGHT);
+                    solution.Add(AgentInterface.AgentAction.WALK_RIGHT);
+                    solution.Add(AgentInterface.AgentAction.WALK_RIGHT);
+                    break;
+                case 1:
+                    solution.Add(AgentInterface.AgentAction.WALK_RIGHT);
+                    solution.Add(AgentInterface.AgentAction.WALK_RIGHT);
+                    solution.Add(AgentInterface.AgentAction.WALK_RIGHT);
+                    solution.Add(AgentInterface.AgentAction.STAY);
+                    solution.Add(AgentInterface.AgentAction.STAY);
+                    solution.Add(AgentInterface.AgentAction.STAY);
+                    solution.Add(AgentInterface.AgentAction.STAY);
+                    solution.Add(AgentInterface.AgentAction.WALK_RIGHT);
+                    solution.Add(AgentInterface.AgentAction.WALK_RIGHT);
+                    solution.Add(AgentInterface.AgentAction.WALK_RIGHT);
+                    solution.Add(AgentInterface.AgentAction.WALK_RIGHT);
+                    solution.Add(AgentInterface.AgentAction.WALK_RIGHT);
+                    solution.Add(AgentInterface.AgentAction.WALK_RIGHT);
+                    solution.Add(AgentInterface.AgentAction.WALK_RIGHT);
+                    solution.Add(AgentInterface.AgentAction.WALK_RIGHT);
+                    solution.Add(AgentInterface.AgentAction.WALK_RIGHT);
+                    break;
+                case 2:
+                    solution.Add(AgentInterface.AgentAction.WALK_RIGHT);
+                    solution.Add(AgentInterface.AgentAction.WALK_RIGHT);
+                    solution.Add(AgentInterface.AgentAction.WALK_RIGHT);
+                    solution.Add(AgentInterface.AgentAction.WALK_RIGHT);
+                    solution.Add(AgentInterface.AgentAction.WALK_RIGHT);
+                    solution.Add(AgentInterface.AgentAction.WALK_RIGHT);
+                    solution.Add(AgentInterface.AgentAction.WALK_RIGHT);
+                    solution.Add(AgentInterface.AgentAction.WALK_RIGHT);
+                    solution.Add(AgentInterface.AgentAction.WALK_RIGHT);
+                    solution.Add(AgentInterface.AgentAction.WALK_RIGHT);
+                    solution.Add(AgentInterface.AgentAction.WALK_RIGHT);
+                    solution.Add(AgentInterface.AgentAction.WALK_RIGHT);
+                    break;
+                case 3:
+                    break;
+                case 4:
+                    break;
+                case 5:
+                    break;
+                case 6:
+                    break;
+                case 7:
+                    break;
+                case 8:
+                    break;
+            }
+        }
+        else {
+            switch (currentLevelID) {
+                case 0:
+                    solution.Add(AgentInterface.AgentAction.WALK_RIGHT);
+                    solution.Add(AgentInterface.AgentAction.WALK_RIGHT);
+                    solution.Add(AgentInterface.AgentAction.JUMP_RIGHT);
+                    solution.Add(AgentInterface.AgentAction.JUMP_RIGHT);
+                    solution.Add(AgentInterface.AgentAction.JUMP_RIGHT);
+                    solution.Add(AgentInterface.AgentAction.JUMP_RIGHT);
+                    solution.Add(AgentInterface.AgentAction.WALK_RIGHT);
+                    solution.Add(AgentInterface.AgentAction.WALK_RIGHT);
+                    solution.Add(AgentInterface.AgentAction.WALK_RIGHT);
+                    solution.Add(AgentInterface.AgentAction.WALK_RIGHT);
+                    solution.Add(AgentInterface.AgentAction.WALK_RIGHT);
+                    solution.Add(AgentInterface.AgentAction.WALK_RIGHT);
+                    solution.Add(AgentInterface.AgentAction.WALK_RIGHT);
+                    solution.Add(AgentInterface.AgentAction.WALK_RIGHT);
+                    break;
+                case 1:
+                    solution.Add(AgentInterface.AgentAction.WALK_RIGHT);
+                    solution.Add(AgentInterface.AgentAction.WALK_RIGHT);
+                    solution.Add(AgentInterface.AgentAction.WALK_RIGHT);
+                    solution.Add(AgentInterface.AgentAction.WALK_RIGHT);
+                    solution.Add(AgentInterface.AgentAction.WALK_RIGHT);
+                    solution.Add(AgentInterface.AgentAction.WALK_RIGHT);
+                    solution.Add(AgentInterface.AgentAction.WALK_RIGHT);
+                    solution.Add(AgentInterface.AgentAction.WALK_RIGHT);
+                    solution.Add(AgentInterface.AgentAction.STAY);
+                    solution.Add(AgentInterface.AgentAction.STAY);
+                    solution.Add(AgentInterface.AgentAction.STAY);
+                    solution.Add(AgentInterface.AgentAction.STAY);
+                    solution.Add(AgentInterface.AgentAction.WALK_RIGHT);
+                    solution.Add(AgentInterface.AgentAction.WALK_RIGHT);
+                    solution.Add(AgentInterface.AgentAction.WALK_RIGHT);
+                    break;
+                case 2:
+                    solution.Add(AgentInterface.AgentAction.WALK_RIGHT);
+                    solution.Add(AgentInterface.AgentAction.WALK_RIGHT);
+                    solution.Add(AgentInterface.AgentAction.WALK_RIGHT);
+                    solution.Add(AgentInterface.AgentAction.WALK_RIGHT);
+                    solution.Add(AgentInterface.AgentAction.GRAB_OR_DROP);
+                    solution.Add(AgentInterface.AgentAction.WALK_LEFT);
+                    solution.Add(AgentInterface.AgentAction.WALK_LEFT);
+                    solution.Add(AgentInterface.AgentAction.GRAB_OR_DROP);
+                    solution.Add(AgentInterface.AgentAction.WALK_RIGHT);
+                    solution.Add(AgentInterface.AgentAction.WALK_RIGHT);
+                    solution.Add(AgentInterface.AgentAction.WALK_RIGHT);
+                    solution.Add(AgentInterface.AgentAction.WALK_RIGHT);
+                    solution.Add(AgentInterface.AgentAction.WALK_RIGHT);
+                    solution.Add(AgentInterface.AgentAction.WALK_RIGHT);
+                    solution.Add(AgentInterface.AgentAction.WALK_RIGHT);
+                    solution.Add(AgentInterface.AgentAction.WALK_RIGHT);
+                    solution.Add(AgentInterface.AgentAction.WALK_RIGHT);
+                    break;
+                case 3:
+                    break;
+                case 4:
+                    break;
+                case 5:
+                    break;
+                case 6:
+                    break;
+                case 7:
+                    break;
+                case 8:
+                    break;
+            }
+        }
+        return solution;
     }
 }

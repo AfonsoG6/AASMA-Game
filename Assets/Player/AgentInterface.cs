@@ -165,8 +165,17 @@ public class AgentInterface : MonoBehaviour
         acting = false;
     }
 
+    public IEnumerator stay() {
+        acting = true;
+        yield return new WaitForSeconds(0.1f);
+        actionSuccessful = true;
+        acting = false;
+    }
+
     public void act(AgentAction action) {
-        levelManager.incrActions(this.gameObject.name);
+        if (action != AgentAction.STAY) {
+            levelManager.incrActions(this.gameObject.name);
+        }
         lastAction = action;
         actionSuccessful = true;
         //Debug.Log("Agent " + this.gameObject.name + " is acting: " + action);
@@ -187,8 +196,7 @@ public class AgentInterface : MonoBehaviour
                 StartCoroutine(grabOrDrop());
                 break;
             default:
-                // STAY
-                actionSuccessful = true;
+                StartCoroutine(stay());
                 break;
         }
     }
