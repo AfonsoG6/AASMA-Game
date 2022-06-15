@@ -55,12 +55,6 @@ public class ReachFlagObjective : Objective {
 			if (newObjective != null) {
 				return newObjective;
 			}
-			if (agentInterface.getLastAction() == AgentAction.WALK_RIGHT && agentInterface.isDoorAt(Vector2.right)) {
-				return new PassDoorObjective(agentInterface, agentInterface.getDoorAt(Vector2.right), agentInterface.getPosition());
-			}
-			else if (agentInterface.getLastAction() == AgentAction.WALK_LEFT && agentInterface.isDoorAt(Vector2.left)) {
-				return new PassDoorObjective(agentInterface, agentInterface.getDoorAt(Vector2.left), agentInterface.getPosition());
-			}
 		}
 		
 		return null;
