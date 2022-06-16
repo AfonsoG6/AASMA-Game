@@ -215,7 +215,7 @@ public class AgentInterface : MonoBehaviour
             else return AgentAction.WALK_RIGHT;
         }
         else if (target.x < transform.position.x) {
-            if (isGroundAt(Vector2.right)) return AgentAction.JUMP_LEFT;
+            if (isGroundAt(Vector2.left)) return AgentAction.JUMP_LEFT;
             else return AgentAction.WALK_LEFT;
         }
         else {
