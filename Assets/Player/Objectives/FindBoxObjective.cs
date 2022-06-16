@@ -48,7 +48,7 @@ public class FindBoxObjective : Objective {
 		// - ran into a door or ground tile while trying to walk towards a needed box to solve puzzle -> action failed
 		// - there are no other target boxes left, meaning one or more needed boxes are locked away behind a door or ground tiles
 		// If there are multiple needed boxes locked away behind doors/ground tiles that need to be jumped over:
-		// - should return JumpOverObjective if another reachableBoxes exists, making it possible to jump over to get the other one
+		// - should return JumpOverObjective only if another reachableBoxes exists, making it possible to jump over to get the other one
 		// - should return PassDoorObjective and pick the "best" door, i.e. the one with the closest reachable button by the partner
 		// However, this is:
 		// - too complex to implement for this project
@@ -70,10 +70,12 @@ public class FindBoxObjective : Objective {
                 allBoxes.Add(box.GetComponent<Box>().getID(), box.GetComponent<Box>());
             }
 		}
-		// FIXME Hack
-		if (allBoxes.ContainsKey(0))
-			return allBoxes[0].gameObject;
-		else return allBoxes[1].gameObject;
+
+		Dictionary<int, Box>.KeyCollection keys = allBoxes.Keys;
+		foreach (int key in keys) {
+			if (allBoxes[key] != null) return allBoxes[key].gameObject;
+		}
+		return null;
 	}
 
 	private void updateTarget() {
