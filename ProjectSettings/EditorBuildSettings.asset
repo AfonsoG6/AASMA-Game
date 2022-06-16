@@ -33,8 +33,11 @@ EditorBuildSettings:
     path: Assets/Scenes/Advanced/Advanced_Level2.unity
     guid: dd15140c08a386f4bbdba26e9017a497
   - enabled: 1
-    path: Assets/Scenes/Advanced/Advanced_Level3.unity
+    path: Assets/Scenes/Advanced/Advanced_Level5.unity
     guid: a3cfa722c4ff6e54db38f0cae8a9347d
+  - enabled: 1
+    path: Assets/Scenes/Advanced/Advanced_Level3.unity
+    guid: bed736d61d48e4a41b4963ebead91b03
   m_configObjects:
     com.unity.input.settings: {fileID: 11400000, guid: c6c4bc4c1df7d9640952e06098da5b49,
       type: 2}

@@ -10,8 +10,9 @@ public class PressButtonObjective : Objective {
 	public int buttonIdx;
 	public bool triedAllButtonsOnce = false;
 	public bool noButtonsLeft = false;
+	public bool force;
 	
-	public PressButtonObjective(AgentInterface agent, PassDoorObjective supportedObjective) :
+	public PressButtonObjective(AgentInterface agent, PassDoorObjective supportedObjective, bool force = false) :
 				base(agent, supportedObjective.target.GetComponent<Door>().getButtons()[0].gameObject) {
 		this.supportedObjective = supportedObjective;
 		this.allButtons = new List<Button>();
@@ -23,6 +24,7 @@ public class PressButtonObjective : Objective {
 			triedAllButtonsOnce = true;
 			noButtonsLeft = true;
 		}
+		this.force = force;
 	}
 
 	public override bool isExclusive() {
@@ -61,10 +63,15 @@ public class PressButtonObjective : Objective {
 				return null;
 			}
 		}
+
+		if (!force) {
+			noButtonsLeft = true;
+			return null;
+		}
 		
 		// If we already tried all buttons that were easily accessible
-		PassDoorObjective newObjective = agentInterface.getPassDoorObjective();
-		if (newObjective != null && !newObjective.equalsTo(supportedObjective)) {
+		Objective newObjective = agentInterface.getObjectiveAfterActionUnsuccessful(this);
+		if (newObjective != null) {
 			return newObjective;
 		}
 

@@ -33,12 +33,14 @@ public class HelpJumpOverObjective : Objective {
         // If agent is holding box, go towards target (door)
         // If not, updateObjective will push FindBox as an objective before this
 		Debug.Log(agentInterface.gameObject.name + ": Helping partner jump over!");
-		if (isFailed())
-			return AgentAction.GRAB_OR_DROP;
+
+		if (isFailed()) return AgentAction.GRAB_OR_DROP;
+
 		if (agentInterface.hasBox()) {
-			if (agentInterface.isDoorAt(new Vector3(targetDirection, 0, 0))) {
+			Vector3 raycastVector = new Vector3(targetDirection*0.5f, 0, 0);
+			if (agentInterface.isDoorAt(raycastVector) || agentInterface.isGroundAt(raycastVector)) {
                 readyToHelp = true;
-			    return AgentAction.STAY;
+				return AgentAction.STAY;
             }
             else {
                 readyToHelp = false; // useless
@@ -57,10 +59,9 @@ public class HelpJumpOverObjective : Objective {
             GameObject[] boxesInLevel = GameObject.FindGameObjectsWithTag("Box");
 			if (boxesInLevel.Length > 0) {
                 lookedForBox = true;
-                return new FindBoxObjective(agentInterface, target.transform.position);
+                return new FindBoxObjective(agentInterface, target.transform.position, this);
             }
         }
-		if (agentInterface.wasActionSuccessful()) return null; //FIXME useless?
 
 		return null;
 	}

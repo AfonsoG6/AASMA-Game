@@ -6,6 +6,8 @@ using static AgentInterface;
 
 public class ReachFlagObjective : Objective {
 
+	public Objective lastSupportedObjective = null;
+	public bool triedSimpleHelp = false;
 	public ReachFlagObjective(AgentInterface agentInterface) : base(agentInterface, GameObject.Find("Flag")) {
 	}
 
@@ -25,38 +27,46 @@ public class ReachFlagObjective : Objective {
 
 	public override AgentAction chooseAction() {
 		Debug.Log(agentInterface.gameObject.name + ": Walking towards the flag!");
-		if (Vector2.Distance(target.transform.position, agentInterface.getPosition()) < 0.1) {
+		if (Math.Abs(target.transform.position.x - agentInterface.getPosition().x) < 0.5) {
 			return AgentAction.STAY;
 		}
 		else return agentInterface.getActionWalkTowards(target.transform.position);
 	}
 
 	public override Objective updateObjective() {
-		// FIXME: duplicated code
-		Agent partner = base.agentInterface.getPartner();
+		Agent partner = agentInterface.getPartner();
 		if (partner.getCurrentObjective() is PassDoorObjective) {
-			PassDoorObjective partnerObjective = (PassDoorObjective)partner.getCurrentObjective();
-			if (partnerObjective.target.GetComponent<Door>().getReachableButtons(agentInterface.getPosition()).Count <= 0)
-				return new JumpOverObjective(base.agentInterface, partnerObjective);
-			else if (agentInterface.reachableBoxExists(partnerObjective.target.transform.position))
-				return new PressButtonWithBoxObjective(base.agentInterface, partnerObjective);
-			else
-				return new PressButtonObjective(base.agentInterface, partnerObjective);
+			PassDoorObjective partnerObjective = (PassDoorObjective) partner.getCurrentObjective();
+			if (partnerObjective != lastSupportedObjective) {
+				lastSupportedObjective = partnerObjective;
+				triedSimpleHelp = false;
+			}
+
+			if (!triedSimpleHelp) {
+				triedSimpleHelp = true;
+				return new PressButtonObjective(agentInterface, partnerObjective);
+			}
+			else if (agentInterface.reachableBoxExists(partnerObjective.target.transform.position) ||
+					agentInterface.hasBox()) {
+				return new PressButtonWithBoxObjective(agentInterface, partnerObjective);
+			}
+			else {
+				return new PressButtonObjective(agentInterface, partnerObjective, true);
+			}
 		}
 		else if (partner.getCurrentObjective() is JumpOverObjective && !partner.getCurrentObjective().isCompleted()) {
-			// FIXME: should also check if JumpOverObjective target door is same as current current passdoorobjective target door
-			JumpOverObjective partnerObjective = (JumpOverObjective)partner.getCurrentObjective();
+			JumpOverObjective partnerObjective = (JumpOverObjective) partner.getCurrentObjective();
 			HelpJumpOverObjective newObjective = new HelpJumpOverObjective(agentInterface, partnerObjective);
 			partnerObjective.supportingObjective = newObjective;
 			return newObjective;
 		}
 		else if (!agentInterface.wasActionSuccessful()) {
-			PassDoorObjective newObjective = agentInterface.getPassDoorObjective();
+			Objective newObjective = agentInterface.getObjectiveAfterActionUnsuccessful(this);
 			if (newObjective != null) {
 				return newObjective;
 			}
 		}
-		
+
 		return null;
 	}
 }

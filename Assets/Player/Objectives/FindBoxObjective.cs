@@ -7,9 +7,12 @@ using static AgentInterface;
 public class FindBoxObjective : Objective {
 	public int boxId = 0;
 	public bool failed = false;
+	public Objective supportedObjective;
 	
-	public FindBoxObjective(AgentInterface agent, Vector3 doorPosition) :
-				base(agent, findTarget(agent.getPosition(), doorPosition)) {}
+	public FindBoxObjective(AgentInterface agent, Vector3 blockedPosition, Objective supportedObjective) :
+				base(agent, findTarget(agent.getPosition(), blockedPosition)) {
+		this.supportedObjective = supportedObjective;
+	}
 
 	public override bool isExclusive() {
 		// Both agents can look for different boxes at any given time
@@ -27,6 +30,7 @@ public class FindBoxObjective : Objective {
 	public override AgentAction chooseAction() {
 		Debug.Log(agentInterface.gameObject.name + ": Looking for Box!");
 		//FIXME isBoxAt(targetDirection) && boxAt(targetDirection) == allBoxes[boxIdx] would be more correct perhaps
+		updateTarget();
 		if (Math.Abs(agentInterface.gameObject.transform.position.x - target.transform.position.x) < 0.5f){
 			return AgentAction.GRAB_OR_DROP;
 		}
@@ -41,6 +45,15 @@ public class FindBoxObjective : Objective {
 		boxId++;
 		updateTarget();
 
+		if (failed == true) {
+			Objective newObjective = agentInterface.getObjectiveAfterActionUnsuccessful(this);
+			if (newObjective != null) {
+				boxId = 0;
+				failed = false;
+				return newObjective;
+			}
+		}
+
 		return null;
 	}
 
@@ -48,12 +61,7 @@ public class FindBoxObjective : Objective {
 		GameObject[] boxesInLevel = GameObject.FindGameObjectsWithTag("Box");
 		Dictionary<int, Box> allBoxes = new Dictionary<int, Box>();
 		foreach (GameObject box in boxesInLevel) {
-			// Optimization
-			Vector3 boxPosition = box.transform.position;
-			if ((agentPosition.x <= doorPosition.x && boxPosition.x <= doorPosition.x) ||
-                (agentPosition.x >= doorPosition.x && boxPosition.x >= doorPosition.x)) {
-                allBoxes.Add(box.GetComponent<Box>().getID(), box.GetComponent<Box>());
-            }
+			allBoxes.Add(box.GetComponent<Box>().getID(), box.GetComponent<Box>());
 		}
 		return allBoxes[0].gameObject;
 	}

@@ -6,6 +6,7 @@ using static AgentInterface;
 
 public class PassDoorObjective : Objective {
 	public int targetDirection;
+	public bool failed = false;
 
 	public PassDoorObjective(AgentInterface agent, GameObject target, Vector2 currentPosition) : base(agent, target) {
 		Vector2 doorPosition = target.transform.position;
@@ -26,8 +27,7 @@ public class PassDoorObjective : Objective {
 	}
 
 	public override bool isFailed() {
-		// Doors always have at least one reachable button so this object can never fail
-		return false;
+		return failed;
 	}
 
 	public override AgentAction chooseAction() {
@@ -39,15 +39,9 @@ public class PassDoorObjective : Objective {
 	}
 
 	public override Objective updateObjective() {
-		Agent partner = base.agentInterface.getPartner();
+		Agent partner = agentInterface.getPartner();
 		if (partner.getCurrentObjective() is PassDoorObjective && this.isOlderThan(partner.getCurrentObjective())) {
-			PassDoorObjective partnerObjective = (PassDoorObjective)partner.getCurrentObjective();
-			if (partnerObjective.target.GetComponent<Door>().getReachableButtons(agentInterface.getPosition()).Count <= 0)
-				return new JumpOverObjective(base.agentInterface, partnerObjective);
-			else if (agentInterface.reachableBoxExists(partnerObjective.target.transform.position))
-				return new PressButtonWithBoxObjective(base.agentInterface, partnerObjective);
-			else
-				return new PressButtonObjective(base.agentInterface, partnerObjective);
+			failed = true;
 		}
 		else if (partner.getCurrentObjective() is JumpOverObjective && !partner.getCurrentObjective().isCompleted()) {
 			// FIXME: should also check if JumpOverObjective target door is same as current current passdoorobjective target door
@@ -56,11 +50,12 @@ public class PassDoorObjective : Objective {
 			partnerObjective.supportingObjective = newObjective;
 			return newObjective;
 		}
-		// FIXME: it works but not sure if complete
+
 		if (target.GetComponent<Door>().getReachableButtons(partner.gameObject.transform.position).Count <= 0 &&
-			target.GetComponent<Door>().getReachableButtons(agentInterface.getPosition()).Count > 0 &&
-			agentInterface.hasBox())
-			return new PressButtonWithBoxObjective(base.agentInterface, this);
+				target.GetComponent<Door>().getReachableButtons(agentInterface.getPosition()).Count > 0 &&
+				agentInterface.hasBox()) {
+			return new PressButtonWithBoxObjective(agentInterface, this);
+		}
 		return null;
 	}
 }

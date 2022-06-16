@@ -8,15 +8,12 @@ public class JumpOverObjective : Objective {
 	public HelpJumpOverObjective supportingObjective;
     public int targetDirection;
     public Vector3 jumpPosition;
-    public bool droppedBox = false;
-    public bool ready = false;
 	
-	public JumpOverObjective(AgentInterface agent, PassDoorObjective originalSupportedObjective) :
-				base(agent, originalSupportedObjective.target) {
+	public JumpOverObjective(AgentInterface agent, Vector3 targetPosition) :
+				base(agent, GameObject.Instantiate(Resources.Load<GameObject>("Target"), targetPosition, Quaternion.identity)) {
         this.supportingObjective = null;
-        this.targetDirection = originalSupportedObjective.targetDirection;
-        this.jumpPosition = new Vector3(target.transform.position.x - 1.5f*targetDirection, target.transform.position.y, target.transform.position.z);
-        //fixme bad position
+        this.targetDirection = agentInterface.getTargetDirection(targetPosition);
+        this.jumpPosition = new Vector3(target.transform.position.x - 1*targetDirection, target.transform.position.y - 2, target.transform.position.z);
 	}
 
 	public override bool isExclusive() {
@@ -33,51 +30,38 @@ public class JumpOverObjective : Objective {
 	}
 
     public override bool isFailed() {
-        if (agentInterface.getPartner().getCurrentObjective() is HelpJumpOverObjective && supportingObjective != null){
+        Objective partnerObjective = agentInterface.getPartner().getCurrentObjective();
+        if (partnerObjective is HelpJumpOverObjective && supportingObjective != null){
             return supportingObjective.isFailed();
         }
         return false;
 	}
 
     public bool readyToJump() {
-        return Math.Abs(Vector2.Distance(agentInterface.getPosition(), jumpPosition)) < 0.8f; //fixme 0.2f
+        return Math.Abs(Vector2.Distance(agentInterface.getPosition(), jumpPosition)) < 0.2f;
     }
 
 	public override AgentAction chooseAction() {
         Debug.Log(agentInterface.gameObject.name + ": I want to jump over!");
-        if (agentInterface.hasBox() && !droppedBox){
-            droppedBox = true;
+        
+        if (agentInterface.hasBox()){
             return AgentAction.GRAB_OR_DROP;
         }
-		if (supportingObjective != null && supportingObjective.readyToHelp) {
-            jumpPosition = new Vector3(agentInterface.getPartner().transform.position.x - 1f*targetDirection, agentInterface.getPartner().transform.position.y, agentInterface.getPartner().transform.position.z);
-            if(readyToJump())
-                ready = true;
-            if (!readyToJump() && !ready) {
-                return agentInterface.getActionWalkTowards(jumpPosition);
-            }
-            else if(ready){
-                if (targetDirection == +1){
+		else if (supportingObjective != null && supportingObjective.readyToHelp) {
+            if (readyToJump()) {
+                if (targetDirection == +1) {
                     return AgentAction.JUMP_RIGHT;
                 }
-                else if (targetDirection == -1){
+                else {
                     return AgentAction.JUMP_LEFT;
                 }
-                return AgentAction.STAY;
-            }
-            else {
-                // Should never get here
-                return AgentAction.STAY;
             }
         }
-		else return AgentAction.STAY;
+		
+        return agentInterface.getActionWalkTowards(target.transform.position);
 	}
 
 	public override Objective updateObjective() {
-		if (agentInterface.wasActionSuccessful()) return null;
-
-        // Probably nothing needed here as isFailed() will automatically remove this if needed
-        
 		return null;
 	}
 }

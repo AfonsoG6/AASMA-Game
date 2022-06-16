@@ -63,6 +63,14 @@ public class Door : MonoBehaviour
         return reachableButtons;
     }
 
+    public bool areBothPlayersOnSameSide() {
+        Vector3 position1 = GameObject.Find("Player1").transform.position;
+        Vector3 position2 = GameObject.Find("Player2").transform.position;
+        Vector3 doorPosition = transform.position;
+        return (position1.x <= doorPosition.x && position2.x <= doorPosition.x) ||
+                (position1.x >= doorPosition.x && position2.x >= doorPosition.x);
+    }
+
     public void addButton(Button b) {
         buttons.Add(b);
     }

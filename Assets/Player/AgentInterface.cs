@@ -211,11 +211,11 @@ public class AgentInterface : MonoBehaviour
 
     public AgentAction getActionWalkTowards(Vector2 target) {
         if (target.x > transform.position.x) {
-            if (isGroundAt(Vector2.right)) return AgentAction.JUMP_RIGHT;
+            if (isPathBlocked(getPosition(), Vector2.right) && !isPathBlocked(getPosition()+Vector2.up, Vector2.right)) return AgentAction.JUMP_RIGHT;
             else return AgentAction.WALK_RIGHT;
         }
         else if (target.x < transform.position.x) {
-            if (isGroundAt(Vector2.right)) return AgentAction.JUMP_LEFT;
+            if (isPathBlocked(getPosition(), Vector2.left) && !isPathBlocked(getPosition()+Vector2.up, Vector2.left)) return AgentAction.JUMP_LEFT;
             else return AgentAction.WALK_LEFT;
         }
         else {
@@ -224,40 +224,126 @@ public class AgentInterface : MonoBehaviour
     }
 
     public PassDoorObjective getPassDoorObjective() {
-        if (getLastAction() == AgentAction.WALK_RIGHT && isDoorAt(Vector2.right)) {
-				return new PassDoorObjective(this, getDoorAt(Vector2.right), getPosition());
+        if (wasActionSuccessful()) return null;
+        if (getLastAction() == AgentAction.WALK_RIGHT) {
+            if (isDoorAt(Vector2.right)) {
+                return new PassDoorObjective(this, getDoorAt(Vector2.right), getPosition());
+            }
+            else if (isDoorAt(Vector2.right, true)) {
+                return new PassDoorObjective(this, getDoorAt(Vector2.right, true), getPosition());
+            }
         }
-        else if (getLastAction() == AgentAction.WALK_LEFT && isDoorAt(Vector2.left)) {
-            return new PassDoorObjective(this, getDoorAt(Vector2.left), getPosition());
+        else if (getLastAction() == AgentAction.WALK_LEFT) {
+            if (isDoorAt(Vector2.left)) {
+                return new PassDoorObjective(this, getDoorAt(Vector2.left), getPosition());
+            }
+            else if (isDoorAt(Vector2.left, true)) {
+                return new PassDoorObjective(this, getDoorAt(Vector2.left, true), getPosition());
+            }
         }
-        else if (getLastAction() == AgentAction.JUMP_RIGHT && isDoorAt(Vector2.right, true)) {
-			return new PassDoorObjective(this, getDoorAt(Vector2.right, true), getPosition());
+        return null;
+    }
+
+    public JumpOverObjective getJumpOverObjective() {
+        if (wasActionSuccessful()) return null;
+        if ((getLastAction() == AgentAction.WALK_RIGHT || getLastAction() == AgentAction.JUMP_RIGHT) &&
+                isPathBlocked(getPosition(),                Vector2.right) && 
+                isPathBlocked(getPosition() +   Vector2.up, Vector2.right) &&
+                !isPathBlocked(getPosition() + 2*Vector2.up, Vector2.right)) {
+			return new JumpOverObjective(this, roundPosition(getPosition()+2*Vector2.up+Vector2.right));
         }
-        else if (getLastAction() == AgentAction.JUMP_LEFT && isDoorAt(Vector2.left, true)) {
-            return new PassDoorObjective(this, getDoorAt(Vector2.left, true), getPosition());
+        else if ((getLastAction() == AgentAction.WALK_LEFT || getLastAction() == AgentAction.JUMP_LEFT) &&
+                isPathBlocked(getPosition(),                Vector2.left) && 
+                isPathBlocked(getPosition() +   Vector2.up, Vector2.left) &&
+                !isPathBlocked(getPosition() + 2*Vector2.up, Vector2.left)) {
+            return new JumpOverObjective(this, roundPosition(getPosition()+2*Vector2.up+Vector2.left));
         }
         else return null;
     }
 
-    public string[] getTagsOfEverythingAt(Vector3 sourcePos, Vector3 direction) {
-        RaycastHit2D[] hits = Physics2D.RaycastAll(sourcePos, direction, 1f);
-        string[] tags = new string[hits.Length];
-        for (int i = 0; i < hits.Length; i++) {
-            tags[i] = hits[i].collider.tag;
+    public Objective getObjectiveAfterActionUnsuccessful(Objective currentObjective) {
+        if (!wasActionSuccessful()) {
+            PassDoorObjective pdo = getPassDoorObjective();
+            if (pdo != null) {
+                Door targetDoor = pdo.target.GetComponent<Door>();
+                if (!(currentObjective is PressButtonWithBoxObjective) &&
+                    targetDoor.getReachableButtons(getPosition()).Count > 0 &&
+                        (hasBox() ||
+                        reachableBoxExists(targetDoor.transform.position))) {
+                    Objective partnerObjective = getPartner().getCurrentObjective();
+                    PressButtonWithBoxObjective pbwbo = new PressButtonWithBoxObjective(this, pdo);
+                    if (!(partnerObjective is PressButtonWithBoxObjective && pbwbo.target == partnerObjective.target ||
+                            partnerObjective is FindBoxObjective && pbwbo.target == ((FindBoxObjective)partnerObjective).supportedObjective.target)) {
+                        return pbwbo;
+                    }
+                }
+                if (targetDoor.getReachableButtons(getPosition()).Count <= 0 &&
+                        targetDoor.areBothPlayersOnSameSide() &&
+                        reachableBoxExists(targetDoor.transform.position)) {
+                    JumpOverObjective joo = getJumpOverObjective();
+                    if (joo != null) {
+                        return joo;
+                    }
+                }
+                return pdo;
+            }
         }
-        return tags;
+        return null;
+    }
+
+    public GameObject[] getEverythingAt(Vector3 sourcePos, Vector3 direction) {
+        RaycastHit2D[] hits = Physics2D.RaycastAll(sourcePos, direction, 1f);
+        GameObject[] everything = new GameObject[hits.Length];
+        for (int i = 0; i < hits.Length; i++) {
+            everything[i] = hits[i].collider.gameObject;
+        }
+        return everything;
+    }
+
+    public bool arrayContains(GameObject[] array, string tag) {
+        foreach (GameObject obj in array) {
+            if (obj.tag == tag) return true;
+        }
+        return false;
+    }
+
+    public GameObject findTagInArray(GameObject[] array, string tag) {
+        foreach (GameObject obj in array) {
+            if (obj.tag == tag) return obj;
+        }
+        return null;
     }
 
     public bool isGroundAt(Vector3 direction, bool upOne = false) {
         Vector3 origin = getPosition();
         if (upOne) origin.y += 1;
-        return Array.IndexOf(getTagsOfEverythingAt(origin, direction), "Ground") > -1;
+        return arrayContains(getEverythingAt(origin, direction), "Ground");
+    }
+
+    public int getTargetDirection(Vector3 targetPosition) {
+        if (targetPosition.x > transform.position.x) return 1;
+        else if (targetPosition.x < transform.position.x) return -1;
+        else return 0;
     }
 
     public bool isDoorAt(Vector3 direction, bool upOne = false) {
         Vector3 origin = getPosition();
         if (upOne) origin.y += 1;
-        return Array.IndexOf(getTagsOfEverythingAt(origin, direction), "Door") > -1;
+        return arrayContains(getEverythingAt(origin, direction), "Door");
+    }
+
+    public bool isClosedDoorAt(Vector3 direction, bool upOne = false) {
+        return isDoorAt(direction, upOne) && !getDoorAt(direction, upOne).GetComponent<Door>().isOpen();
+    }
+
+    public bool isPathBlocked(Vector3 origin, Vector3 direction) {
+        GameObject[] everything = getEverythingAt(origin, direction);
+        if (arrayContains(everything, "Ground")) return true;
+        else if (arrayContains(everything, "Door")) {
+            Door door = findTagInArray(everything, "Door").GetComponent<Door>();
+            return !door.isOpen();
+        }
+        else return false;
     }
 
     public GameObject getDoorAt(Vector3 direction, bool upOne = false) {
@@ -296,7 +382,7 @@ public class AgentInterface : MonoBehaviour
     public bool canJumpOverDoor(Vector3 doorPosition, int direction) {
         Vector3 sourceDirection = new Vector3(direction, 0, 0);
         Vector3 sourcePosition = new Vector3(doorPosition.x - direction, doorPosition.y + 2, doorPosition.z);
-        return !(Array.IndexOf(getTagsOfEverythingAt(sourcePosition, sourceDirection), "Ground") > -1);
+        return !arrayContains(getEverythingAt(sourcePosition, sourceDirection), "Ground");
     }
 
     public bool hasGonePastDoor(Vector3 doorPosition, int direction) {
@@ -304,6 +390,10 @@ public class AgentInterface : MonoBehaviour
 			return getPosition().x > doorPosition.x;
 		else
 			return getPosition().x < doorPosition.x;
+    }
+
+    public Vector2 roundPosition(Vector2 position) {
+        return new Vector2(Mathf.Floor(position.x)+0.5f, Mathf.Floor(position.y)+0.5f);
     }
 
     public enum AgentAction {
