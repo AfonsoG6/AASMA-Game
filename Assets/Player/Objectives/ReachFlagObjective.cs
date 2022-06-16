@@ -25,36 +25,26 @@ public class ReachFlagObjective : Objective {
 
 	public override AgentAction chooseAction() {
 		Debug.Log(agentInterface.gameObject.name + ": Walking towards the flag!");
-		if (Vector2.Distance(target.transform.position, agentInterface.getPosition()) < 0.1) {
+		if (agentInterface.dropBox()) return AgentAction.GRAB_OR_DROP;
+		if (Math.Abs(Vector2.Distance(target.transform.position, agentInterface.getPosition())) < 0.1 ||
+			target.GetComponent<Flag>().checkPlayerWin(agentInterface.gameObject.name)) {
 			return AgentAction.STAY;
 		}
 		else return agentInterface.getActionWalkTowards(target.transform.position);
 	}
 
 	public override Objective updateObjective() {
-		// FIXME: duplicated code
-		Agent partner = base.agentInterface.getPartner();
-		if (partner.getCurrentObjective() is PassDoorObjective) {
-			PassDoorObjective partnerObjective = (PassDoorObjective)partner.getCurrentObjective();
-			if (partnerObjective.target.GetComponent<Door>().getReachableButtons(agentInterface.getPosition()).Count <= 0)
-				return new JumpOverObjective(base.agentInterface, partnerObjective);
-			else if (agentInterface.reachableBoxExists(partnerObjective.target.transform.position))
-				return new PressButtonWithBoxObjective(base.agentInterface, partnerObjective);
-			else
-				return new PressButtonObjective(base.agentInterface, partnerObjective);
-		}
-		else if (partner.getCurrentObjective() is JumpOverObjective && !partner.getCurrentObjective().isCompleted()) {
-			// FIXME: should also check if JumpOverObjective target door is same as current current passdoorobjective target door
-			JumpOverObjective partnerObjective = (JumpOverObjective)partner.getCurrentObjective();
-			HelpJumpOverObjective newObjective = new HelpJumpOverObjective(agentInterface, partnerObjective);
-			partnerObjective.supportingObjective = newObjective;
-			return newObjective;
-		}
-		else if (!agentInterface.wasActionSuccessful()) {
-			PassDoorObjective newObjective = agentInterface.getPassDoorObjective();
-			if (newObjective != null) {
-				return newObjective;
-			}
+		Objective newObjective;
+
+		newObjective = agentInterface.helpPassDoorObjective();
+		if (newObjective != null) return newObjective;
+		
+		newObjective = agentInterface.helpJumpOverObjective();
+		if (newObjective != null) return newObjective;
+		
+		if (!agentInterface.wasActionSuccessful()) {
+			newObjective = agentInterface.getPassDoorObjective();
+			if (newObjective != null) return newObjective;
 		}
 		
 		return null;

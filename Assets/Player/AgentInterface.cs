@@ -225,7 +225,7 @@ public class AgentInterface : MonoBehaviour
 
     public PassDoorObjective getPassDoorObjective() {
         if (getLastAction() == AgentAction.WALK_RIGHT && isDoorAt(Vector2.right)) {
-				return new PassDoorObjective(this, getDoorAt(Vector2.right), getPosition());
+			return new PassDoorObjective(this, getDoorAt(Vector2.right), getPosition());
         }
         else if (getLastAction() == AgentAction.WALK_LEFT && isDoorAt(Vector2.left)) {
             return new PassDoorObjective(this, getDoorAt(Vector2.left), getPosition());
@@ -237,6 +237,31 @@ public class AgentInterface : MonoBehaviour
             return new PassDoorObjective(this, getDoorAt(Vector2.left, true), getPosition());
         }
         else return null;
+    }
+
+    // Returns the most suitable objective to help a partner pass a door
+    public Objective helpPassDoorObjective() {
+		if (partner.getCurrentObjective() is PassDoorObjective) {
+			PassDoorObjective partnerObjective = (PassDoorObjective)partner.getCurrentObjective();
+			if (partnerObjective.target.GetComponent<Door>().getReachableButtons(getPosition()).Count <= 0)
+				return new JumpOverObjective(this, partnerObjective, getJumpTargetPosition(partnerObjective.target.transform.position));
+			else if (reachableBoxExists(partnerObjective.target.transform.position))
+				return new PressButtonWithBoxObjective(this, partnerObjective);
+			else
+				return new PressButtonObjective(this, partnerObjective);
+		}
+        return null;
+    }
+
+    // Returns HelpJumpOverObjective if partner agent is trying to jump over something
+    public HelpJumpOverObjective helpJumpOverObjective() {
+        if (partner.getCurrentObjective() is JumpOverObjective && !partner.getCurrentObjective().isCompleted()) {
+			JumpOverObjective partnerObjective = (JumpOverObjective)partner.getCurrentObjective();
+			HelpJumpOverObjective newObjective = new HelpJumpOverObjective(this, partnerObjective);
+			partnerObjective.supportingObjective = newObjective;
+			return newObjective;
+		}
+        return null;
     }
 
     public string[] getTagsOfEverythingAt(Vector3 sourcePos, Vector3 direction) {
@@ -276,12 +301,17 @@ public class AgentInterface : MonoBehaviour
         return attachedBox.activeSelf;
     }
 
+    public bool dropBox() {
+        return getPartner().getCurrentObjective() is FindBoxObjective && hasBox();
+    }
+
     public bool boxExists() {
         return GameObject.FindGameObjectsWithTag("Box").Length > 0 || this.hasBox();
     }
 
-    // Optimization
+    // Optimization: check if a reachable box exists
     public bool reachableBoxExists(Vector3 doorPosition) {
+        if (hasBox()) return true;
         GameObject[] boxesInLevel = GameObject.FindGameObjectsWithTag("Box");
 		foreach (GameObject box in boxesInLevel) {
 			Vector3 boxPosition = box.transform.position;
@@ -295,15 +325,23 @@ public class AgentInterface : MonoBehaviour
 
     public bool canJumpOverDoor(Vector3 doorPosition, int direction) {
         Vector3 sourceDirection = new Vector3(direction, 0, 0);
-        Vector3 sourcePosition = new Vector3(doorPosition.x - direction, doorPosition.y + 2, doorPosition.z);
-        return !(Array.IndexOf(getTagsOfEverythingAt(sourcePosition, sourceDirection), "Ground") > -1);
+        Vector3 sourcePosition1 = new Vector3(doorPosition.x - direction, doorPosition.y + 1, doorPosition.z);
+        Vector3 sourcePosition2 = new Vector3(doorPosition.x - direction, doorPosition.y + 2, doorPosition.z);
+        return (!(Array.IndexOf(getTagsOfEverythingAt(sourcePosition2, sourceDirection), "Ground") > -1) || !(Array.IndexOf(getTagsOfEverythingAt(sourcePosition1, sourceDirection), "Ground") > -1));
     }
 
-    public bool hasGonePastDoor(Vector3 doorPosition, int direction) {
+    public bool hasGonePastPosition(Vector3 position, int direction) {
         if (direction == +1)
-			return getPosition().x > doorPosition.x;
+			return getPosition().x > position.x;
 		else
-			return getPosition().x < doorPosition.x;
+			return getPosition().x < position.x;
+    }
+
+    public Vector3 getJumpTargetPosition(Vector3 sourcePosition) {
+        if (Array.IndexOf(getTagsOfEverythingAt(sourcePosition, new Vector3(0, +1, 0)), "Ground") > -1)
+            return new Vector3(sourcePosition.x, sourcePosition.y + 2, sourcePosition.z);
+        else
+            return new Vector3(sourcePosition.x, sourcePosition.y + 1, sourcePosition.z);
     }
 
     public enum AgentAction {

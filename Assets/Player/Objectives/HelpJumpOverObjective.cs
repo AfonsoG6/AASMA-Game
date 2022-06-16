@@ -7,6 +7,7 @@ using static AgentInterface;
 public class HelpJumpOverObjective : Objective {
 	public JumpOverObjective supportedObjective;
     public int targetDirection;
+	public Vector3 helpPosition;
     public bool lookedForBox = false;
     public bool readyToHelp = false;
 	
@@ -14,6 +15,7 @@ public class HelpJumpOverObjective : Objective {
 				base(agent, supportedObjective.target) {
 		this.supportedObjective = supportedObjective;
         this.targetDirection = supportedObjective.targetDirection;
+		this.helpPosition = new Vector3(supportedObjective.jumpPosition.x, supportedObjective.jumpPosition.y, supportedObjective.jumpPosition.z);
 	}
 
 	public override bool isExclusive() {
@@ -36,13 +38,13 @@ public class HelpJumpOverObjective : Objective {
 		if (isFailed())
 			return AgentAction.GRAB_OR_DROP;
 		if (agentInterface.hasBox()) {
-			if (agentInterface.isDoorAt(new Vector3(targetDirection, 0, 0))) {
+			if (Math.Abs(Vector2.Distance(helpPosition, agentInterface.getPosition())) < 0.5f) {
                 readyToHelp = true;
 			    return AgentAction.STAY;
             }
             else {
-                readyToHelp = false; // useless
-                return agentInterface.getActionWalkTowards(target.transform.position);
+                readyToHelp = false; // Useless
+                return agentInterface.getActionWalkTowards(helpPosition);
             }
 		}
 		else {
@@ -53,14 +55,17 @@ public class HelpJumpOverObjective : Objective {
 
 	public override Objective updateObjective() {
 
-		if (!agentInterface.hasBox()) {
+		// Look for box if doesn't have box
+		if (!agentInterface.hasBox() && !lookedForBox) {
             GameObject[] boxesInLevel = GameObject.FindGameObjectsWithTag("Box");
 			if (boxesInLevel.Length > 0) {
-                lookedForBox = true;
-                return new FindBoxObjective(agentInterface, target.transform.position);
+				FindBoxObjective newObjective = new FindBoxObjective(agentInterface, target.transform.position);
+				if (!newObjective.equalsTo(agentInterface.getPartner().getCurrentObjective())) {
+                    lookedForBox = true;
+                    return newObjective;
+                }
             }
         }
-		if (agentInterface.wasActionSuccessful()) return null; //FIXME useless?
 
 		return null;
 	}

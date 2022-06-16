@@ -49,7 +49,7 @@ public class Door : MonoBehaviour
         return buttons;
     }
     
-    // Optimization
+    // Optimization: only return viable buttons
     public List<Button> getReachableButtons(Vector3 agentPosition) {
         Vector3 doorPosition = gameObject.transform.position;
         List<Button> reachableButtons = new List<Button>();

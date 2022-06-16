@@ -22,16 +22,17 @@ public class PassDoorObjective : Objective {
 	}
 
 	public override bool isCompleted() {
-		return agentInterface.hasGonePastDoor(target.transform.position, targetDirection);
+		return agentInterface.hasGonePastPosition(target.transform.position, targetDirection);
 	}
 
 	public override bool isFailed() {
-		// Doors always have at least one reachable button so this object can never fail
+		// Doors should always have at least one reachable button so this object can never fail
 		return false;
 	}
 
 	public override AgentAction chooseAction() {
 		Debug.Log(agentInterface.gameObject.name + ": Trying to pass the door!");
+		if (agentInterface.dropBox()) return AgentAction.GRAB_OR_DROP;
 		if (target.GetComponent<Door>().isOpen()) {
 			return agentInterface.getActionWalkTowards(target.transform.position + new Vector3(targetDirection, 0, 0));
 		}
@@ -39,28 +40,21 @@ public class PassDoorObjective : Objective {
 	}
 
 	public override Objective updateObjective() {
-		Agent partner = base.agentInterface.getPartner();
-		if (partner.getCurrentObjective() is PassDoorObjective && this.isOlderThan(partner.getCurrentObjective())) {
-			PassDoorObjective partnerObjective = (PassDoorObjective)partner.getCurrentObjective();
-			if (partnerObjective.target.GetComponent<Door>().getReachableButtons(agentInterface.getPosition()).Count <= 0)
-				return new JumpOverObjective(base.agentInterface, partnerObjective);
-			else if (agentInterface.reachableBoxExists(partnerObjective.target.transform.position))
-				return new PressButtonWithBoxObjective(base.agentInterface, partnerObjective);
-			else
-				return new PressButtonObjective(base.agentInterface, partnerObjective);
-		}
-		else if (partner.getCurrentObjective() is JumpOverObjective && !partner.getCurrentObjective().isCompleted()) {
-			// FIXME: should also check if JumpOverObjective target door is same as current current passdoorobjective target door
-			JumpOverObjective partnerObjective = (JumpOverObjective)partner.getCurrentObjective();
-			HelpJumpOverObjective newObjective = new HelpJumpOverObjective(agentInterface, partnerObjective);
-			partnerObjective.supportingObjective = newObjective;
-			return newObjective;
-		}
-		// FIXME: it works but not sure if complete
-		if (target.GetComponent<Door>().getReachableButtons(partner.gameObject.transform.position).Count <= 0 &&
-			target.GetComponent<Door>().getReachableButtons(agentInterface.getPosition()).Count > 0 &&
-			agentInterface.hasBox())
+		Objective newObjective;
+
+		newObjective = agentInterface.helpPassDoorObjective();
+		if (newObjective != null) return newObjective;
+		
+		newObjective = agentInterface.helpJumpOverObjective();
+		if (newObjective != null) return newObjective;
+
+		// Hack, correct behavior should be in FindBoxObjective.updateObjective()
+		// However, that behaviour is too complex to implement, as described on that function's comments
+		if (target.GetComponent<Door>().getReachableButtons(agentInterface.getPartner().gameObject.transform.position).Count <= 0 &&
+			target.GetComponent<Door>().getReachableButtons(agentInterface.getPosition()).Count > 0 && agentInterface.hasBox()) {
 			return new PressButtonWithBoxObjective(base.agentInterface, this);
+		}
+
 		return null;
 	}
 }

@@ -25,21 +25,36 @@ public class FindBoxObjective : Objective {
 	}
 
 	public override AgentAction chooseAction() {
+		// Something along the lines of this would probably be more correct:
+		// - agentInterface.isBoxAt(targetDirection) && agentInterface.getBoxAt(targetDirection) == target
+		// But checking the distance to the target box also works fine
 		Debug.Log(agentInterface.gameObject.name + ": Looking for Box!");
-		//FIXME isBoxAt(targetDirection) && boxAt(targetDirection) == allBoxes[boxIdx] would be more correct perhaps
-		if (Math.Abs(agentInterface.gameObject.transform.position.x - target.transform.position.x) < 0.5f){
+		if (Math.Abs(Vector2.Distance(target.transform.position, agentInterface.getPosition())) <= 0.5f)
 			return AgentAction.GRAB_OR_DROP;
-		}
 		else
 			return agentInterface.getActionWalkTowards(target.transform.position);
 	}
 
 	public override Objective updateObjective() {
-		if (agentInterface.wasActionSuccessful()) return null;
 
 		// If the last action failed, we try another box if it exists.
-		boxId++;
-		updateTarget();
+		if (!agentInterface.wasActionSuccessful()) {
+			boxId++;
+			updateTarget();
+		}
+
+		// DISREGARDED CASE:
+		// For a "complete" solution, this should at least be returning PassDoorObjective or JumpOverObjective if:
+		// - ran into a door or ground tile while trying to walk towards a needed box to solve puzzle -> action failed
+		// - there are no other target boxes left, meaning one or more needed boxes are locked away behind a door or ground tiles
+		// If there are multiple needed boxes locked away behind doors/ground tiles that need to be jumped over:
+		// - should return JumpOverObjective if another reachableBoxes exists, making it possible to jump over to get the other one
+		// - should return PassDoorObjective and pick the "best" door, i.e. the one with the closest reachable button by the partner
+		// However, this is:
+		// - too complex to implement for this project
+		// - too specific to certain level layouts
+		// - doesn't incide as much on the main focus of the project, that being the collaborative aspect of the agents
+		// Which is why this case has been disregarded and thus no level layouts that require it were considered for evaluation
 
 		return null;
 	}
@@ -48,7 +63,7 @@ public class FindBoxObjective : Objective {
 		GameObject[] boxesInLevel = GameObject.FindGameObjectsWithTag("Box");
 		Dictionary<int, Box> allBoxes = new Dictionary<int, Box>();
 		foreach (GameObject box in boxesInLevel) {
-			// Optimization
+			// Optimization: only look for viable boxes
 			Vector3 boxPosition = box.transform.position;
 			if ((agentPosition.x <= doorPosition.x && boxPosition.x <= doorPosition.x) ||
                 (agentPosition.x >= doorPosition.x && boxPosition.x >= doorPosition.x)) {
