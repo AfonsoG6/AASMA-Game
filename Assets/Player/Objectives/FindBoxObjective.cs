@@ -70,7 +70,10 @@ public class FindBoxObjective : Objective {
                 allBoxes.Add(box.GetComponent<Box>().getID(), box.GetComponent<Box>());
             }
 		}
-		return allBoxes[0].gameObject;
+		// FIXME Hack
+		if (allBoxes.ContainsKey(0))
+			return allBoxes[0].gameObject;
+		else return allBoxes[1].gameObject;
 	}
 
 	private void updateTarget() {

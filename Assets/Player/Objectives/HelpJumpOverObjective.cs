@@ -6,16 +6,12 @@ using static AgentInterface;
 
 public class HelpJumpOverObjective : Objective {
 	public JumpOverObjective supportedObjective;
-    public int targetDirection;
-	public Vector3 helpPosition;
     public bool lookedForBox = false;
     public bool readyToHelp = false;
 	
 	public HelpJumpOverObjective(AgentInterface agent, JumpOverObjective supportedObjective) :
 				base(agent, supportedObjective.target) {
 		this.supportedObjective = supportedObjective;
-        this.targetDirection = supportedObjective.targetDirection;
-		this.helpPosition = new Vector3(supportedObjective.jumpPosition.x, supportedObjective.jumpPosition.y, supportedObjective.jumpPosition.z);
 	}
 
 	public override bool isExclusive() {
@@ -38,13 +34,13 @@ public class HelpJumpOverObjective : Objective {
 		if (isFailed())
 			return AgentAction.GRAB_OR_DROP;
 		if (agentInterface.hasBox()) {
-			if (Math.Abs(Vector2.Distance(helpPosition, agentInterface.getPosition())) < 0.5f) {
+			if (Math.Abs(Vector2.Distance(supportedObjective.jumpPosition, agentInterface.getPosition())) < 0.5f) {
                 readyToHelp = true;
 			    return AgentAction.STAY;
             }
             else {
                 readyToHelp = false; // Useless
-                return agentInterface.getActionWalkTowards(helpPosition);
+                return agentInterface.getActionWalkTowards(supportedObjective.jumpPosition);
             }
 		}
 		else {

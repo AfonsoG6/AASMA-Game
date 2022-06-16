@@ -62,12 +62,15 @@ public class PressButtonObjective : Objective {
 				return null;
 			}
 		}
-		
+
 		// If we already tried all buttons that were easily accessible
 		PassDoorObjective newObjective = agentInterface.getPassDoorObjective();
 		if (newObjective != null && !newObjective.equalsTo(supportedObjective)) {
 			return newObjective;
 		}
+
+		JumpOverObjective buttonJumpOverObjective = agentInterface.getButtonJumpOverObjective(this.supportedObjective);
+		if (buttonJumpOverObjective != null) return buttonJumpOverObjective;
 
 		if (buttonIdx+1 < allButtons.Count) {
 			buttonIdx++;

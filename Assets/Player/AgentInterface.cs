@@ -243,8 +243,8 @@ public class AgentInterface : MonoBehaviour
     public Objective helpPassDoorObjective() {
 		if (partner.getCurrentObjective() is PassDoorObjective) {
 			PassDoorObjective partnerObjective = (PassDoorObjective)partner.getCurrentObjective();
-			if (partnerObjective.target.GetComponent<Door>().getReachableButtons(getPosition()).Count <= 0)
-				return new JumpOverObjective(this, partnerObjective, getJumpTargetPosition(partnerObjective.target.transform.position));
+			if (partnerObjective.target.GetComponent<Door>().getReachableButtons(getPosition()).Count <= 0 && canJumpOverWithHelp(getPosition(), partnerObjective.targetDirection))
+				return new JumpOverObjective(this, partnerObjective, partnerObjective.targetDirection, getJumpTargetPosition(partnerObjective.target.transform.position));
 			else if (reachableBoxExists(partnerObjective.target.transform.position))
 				return new PressButtonWithBoxObjective(this, partnerObjective);
 			else
@@ -323,11 +323,28 @@ public class AgentInterface : MonoBehaviour
         return false;
     }
 
-    public bool canJumpOverDoor(Vector3 doorPosition, int direction) {
+    public bool canJumpOverWithHelp(Vector3 position, int direction) {
         Vector3 sourceDirection = new Vector3(direction, 0, 0);
-        Vector3 sourcePosition1 = new Vector3(doorPosition.x - direction, doorPosition.y + 1, doorPosition.z);
-        Vector3 sourcePosition2 = new Vector3(doorPosition.x - direction, doorPosition.y + 2, doorPosition.z);
-        return (!(Array.IndexOf(getTagsOfEverythingAt(sourcePosition2, sourceDirection), "Ground") > -1) || !(Array.IndexOf(getTagsOfEverythingAt(sourcePosition1, sourceDirection), "Ground") > -1));
+        Vector3 sourcePosition = new Vector3(position.x, position.y + 2, position.z);
+        return !(Array.IndexOf(getTagsOfEverythingAt(sourcePosition, sourceDirection), "Ground") > -1);
+    }
+
+    public JumpOverObjective getButtonJumpOverObjective(PassDoorObjective supportedObjective) {
+        int lastActionDirection;
+        if (lastAction == AgentAction.WALK_RIGHT)
+            lastActionDirection = +1;
+        else if (lastAction == AgentAction.WALK_LEFT)
+            lastActionDirection = -1;
+        else return null;
+        if (partner.getCurrentObjective() is PassDoorObjective) {
+            PassDoorObjective partnerObjective = (PassDoorObjective)partner.getCurrentObjective();
+            if (supportedObjective != partnerObjective) return null;
+        }
+        if (canJumpOverWithHelp(getPosition(), lastActionDirection)) {
+            Vector3 tilePosition = new Vector3(getPosition().x + lastActionDirection, getPosition().y, transform.position.z);
+            return new JumpOverObjective(this, supportedObjective, lastActionDirection, getJumpTargetPosition(tilePosition));
+        }
+        else return null;
     }
 
     public bool hasGonePastPosition(Vector3 position, int direction) {

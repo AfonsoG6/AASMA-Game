@@ -12,10 +12,10 @@ public class JumpOverObjective : Objective {
     public bool droppedBox = false;
     public bool ready = false;
 	
-	public JumpOverObjective(AgentInterface agent, PassDoorObjective originalSupportedObjective, Vector3 realTargetPosition) :
+	public JumpOverObjective(AgentInterface agent, PassDoorObjective originalSupportedObjective, int realTargetDirection, Vector3 realTargetPosition) :
 				base(agent, originalSupportedObjective.target) {
         this.supportingObjective = null;
-        this.targetDirection = originalSupportedObjective.targetDirection;
+        this.targetDirection = realTargetDirection;
         this.targetPosition = realTargetPosition;
         this.jumpPosition = new Vector3(realTargetPosition.x - 1f*targetDirection, realTargetPosition.y - 2, realTargetPosition.z);
 	}
@@ -27,7 +27,7 @@ public class JumpOverObjective : Objective {
 
 	public override bool isCompleted() {
         // Is completed when agent has effectively gone past the door by jumping over
-        return agentInterface.hasGonePastPosition(target.transform.position, targetDirection);
+        return agentInterface.hasGonePastPosition(targetPosition, targetDirection);
 	}
 
     public override bool isFailed() {
