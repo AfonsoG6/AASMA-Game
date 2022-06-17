@@ -24,7 +24,7 @@ public class PressButtonWithBoxObjective : PressButtonObjective {
 		Debug.Log(agentInterface.gameObject.name + ": Dropping off box on button!");
 		if (isFailed())
 			return AgentAction.GRAB_OR_DROP;
-        if (target.GetComponent<Button>().pressedByPlayer()) {
+        if (target.GetComponent<Button>().pressedByPlayer() || (Mathf.Abs(target.GetComponent<Button>().transform.position.x - agentInterface.getPosition().x) < 0.2)) {
 			if (agentInterface.hasBox()) {
                 droppedBox = true;
 				return AgentAction.GRAB_OR_DROP;

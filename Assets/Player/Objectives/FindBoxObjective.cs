@@ -43,19 +43,6 @@ public class FindBoxObjective : Objective {
 			updateTarget();
 		}
 
-		// DISREGARDED CASE:
-		// For a "complete" solution, this should at least be returning PassDoorObjective or JumpOverObjective if:
-		// - ran into a door or ground tile while trying to walk towards a needed box to solve puzzle -> action failed
-		// - there are no other target boxes left, meaning one or more needed boxes are locked away behind a door or ground tiles
-		// If there are multiple needed boxes locked away behind doors/ground tiles that need to be jumped over:
-		// - should return JumpOverObjective only if another reachableBoxes exists, making it possible to jump over to get the other one
-		// - should return PassDoorObjective and pick the "best" door, i.e. the one with the closest reachable button by the partner
-		// However, this is:
-		// - too complex to implement for this project
-		// - too specific to certain level layouts
-		// - doesn't incide as much on the main focus of the project, that being the collaborative aspect of the agents
-		// Which is why this case has been disregarded and thus no level layouts that require it were considered for evaluation
-
 		return null;
 	}
 
