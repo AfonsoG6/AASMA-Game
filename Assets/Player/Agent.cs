@@ -25,8 +25,10 @@ public class Agent : MonoBehaviour {
 		if (i.isActing()) return;
 		
 		if (solution != null) {
-			i.act(solution[0]);
-			solution.RemoveAt(0);
+			if (solution.Count > 0) {
+				i.act(solution[0]);
+				solution.RemoveAt(0);
+			}
 		}
 		else {
 			updateObjectives();
