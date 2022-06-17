@@ -100,7 +100,7 @@ public class LevelManager : MonoBehaviour {
             isFullAttempt = true;
             isPerfectRun = true;
             fullAttempt = new Attempt();
-            ChangeLevel(8);
+            ChangeLevel(0);
         }
         else if (buttonID == -1) {
             // Full Attempt (All Levels)
